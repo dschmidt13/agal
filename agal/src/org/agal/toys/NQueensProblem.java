@@ -11,8 +11,9 @@ import java.util.Random;
 
 import org.agal.core.EvolutionAlgorithm;
 import org.agal.core.EvolutionControlThread;
-import org.agal.core.impl.ClassicGeneticAlgorithm;
-
+import org.agal.core.StateManager;
+import org.agal.core.impl.EugenicAlgorithm;
+import org.agal.core.impl.FitnessThresholdStopCondition;
 
 /**
  * NQueensProblem represents a generic nxn chessboard with n Queens on it. The problem is
@@ -96,8 +97,11 @@ public class NQueensProblem
 			{
 			}
 
-		EvolutionAlgorithm algo = new ClassicGeneticAlgorithm( 0, 0 );
-		EvolutionControlThread controlThread = new EvolutionControlThread<>( algo, null, 4 );
+		StateManager<NQueensProblem> stateManager = new NQueensStateManager( SIZE );
+		EvolutionAlgorithm algo = new EugenicAlgorithm<NQueensProblem>( null, stateManager, null );
+		FitnessThresholdStopCondition<NQueensProblem> stopCondition = new FitnessThresholdStopCondition<NQueensProblem>(
+				stateManager, 1.0 );
+		EvolutionControlThread controlThread = new EvolutionControlThread<>( algo, stopCondition, 1 );
 
 		long millis = System.currentTimeMillis( );
 
@@ -106,7 +110,7 @@ public class NQueensProblem
 
 		millis = System.currentTimeMillis( ) - millis;
 
-		NQueensProblem solution = null;
+		NQueensProblem solution = stopCondition.getSolution( );
 		System.out.println( "Found one! (" + millis + "ms) Solution: "
 				+ Arrays.toString( solution.getPositions( ) ) );
 

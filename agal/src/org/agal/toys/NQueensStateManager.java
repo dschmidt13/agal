@@ -8,10 +8,9 @@ package org.agal.toys;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.agal.core.StateManager;
-import org.agal.core.ThreadRandom;
-
 
 /**
  * NQueensStateManager is a StateManager implementation for the NQueensProblem.
@@ -37,9 +36,11 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 		// already existing there: the nth queen causes n-1 new conflicts. So the total
 		// number of conflicts with n queens on the same row is the sum from 1 to n-1.
 		// This loop does that.
+		// LAM - There's probably an equation for this discovered with integral calc. Oh
+		// well, it only really runs once.
 		int maxConflicts = 0;
 		for ( int i = 1; i < fieldBoardSize; maxConflicts += i++ )
-			;
+			; // Just counting. Not broken.
 		fieldMaxConflicts = maxConflicts;
 
 	} // NQueensStateManager
@@ -65,7 +66,7 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 	@Override
 	public NQueensProblem randomize( )
 	{
-		return new NQueensProblem( ThreadRandom.get( ), fieldBoardSize );
+		return new NQueensProblem( ThreadLocalRandom.current( ), fieldBoardSize );
 
 	} // randomize
 
@@ -75,7 +76,7 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 		int[ ] momGenes = mother.getPositions( );
 		int[ ] dadGenes = father.getPositions( );
 		int[ ] childGenes = new int[ fieldBoardSize ];
-		Random rand = ThreadRandom.get( );
+		Random rand = ThreadLocalRandom.current( );
 		for ( int i = 0; i < fieldBoardSize; i++ )
 			childGenes[ i ] = ( rand.nextBoolean( ) ? momGenes[ i ] : dadGenes[ i ] );
 		return new NQueensProblem( childGenes );
@@ -99,7 +100,7 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 		int[ ] dadGenes = father.getPositions( );
 		int[ ] childGenes = new int[ fieldBoardSize ];
 		int genePosition = 0;
-		Random rand = ThreadRandom.get( );
+		Random rand = ThreadLocalRandom.current( );
 
 		// This dodgy little number alternates between parents, taking a random-length
 		// strip of alleles and copying it into the child all the way along the
@@ -122,7 +123,7 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 		// chromosome. (This method is crap.)
 		int[ ] momGenes = mother.getPositions( );
 		int[ ] dadGenes = father.getPositions( );
-		int crossoverPoint = ThreadRandom.get( ).nextInt( fieldBoardSize );
+		int crossoverPoint = ThreadLocalRandom.current( ).nextInt( fieldBoardSize );
 		int[ ] childGenes = new int[ fieldBoardSize ];
 		System.arraycopy( momGenes, 0, childGenes, 0, crossoverPoint );
 		System.arraycopy( dadGenes, crossoverPoint, childGenes, crossoverPoint, fieldBoardSize
@@ -135,7 +136,7 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 
 	private NQueensProblem singlePointMutation( NQueensProblem original )
 	{
-		Random rand = ThreadRandom.get( );
+		Random rand = ThreadLocalRandom.current( );
 		int[ ] chromosome = Arrays.copyOf( original.getPositions( ), fieldBoardSize );
 
 		chromosome[ rand.nextInt( fieldBoardSize ) ] = rand.nextInt( fieldBoardSize );
