@@ -8,19 +8,19 @@ package org.agal.core.impl;
 
 import java.util.Random;
 
-import org.agal.core.EvolutionAlgorithm;
 import org.agal.core.EvolutionListener;
 import org.agal.core.PopulationModel;
 import org.agal.core.StateManager;
 import org.agal.toys.NQueensProblem;
 
-
 /**
  * ClassicGeneticAlgorithm implements what is described as "a more popular version" of
- * their sample algorithm.
+ * their sample algorithm. (Generational population pool is implied.)
+ * @deprecated Use EugenicAlgorithm instead for now.
  * @author Dave
  */
-public class ClassicGeneticAlgorithm<S> implements EvolutionAlgorithm<S>
+@Deprecated
+public class ClassicGeneticAlgorithm<S> extends EugenicAlgorithm<S>
 {
 	// Data members.
 	private StateManager<S> fieldStateManager;
@@ -31,6 +31,9 @@ public class ClassicGeneticAlgorithm<S> implements EvolutionAlgorithm<S>
 
 	public ClassicGeneticAlgorithm( StateManager<S> stateManager, int populationSize )
 	{
+		// TODO !!!
+		super( null, stateManager, null );
+
 		fieldStateManager = stateManager;
 		fieldPopulationSize = populationSize;
 
@@ -118,8 +121,7 @@ public class ClassicGeneticAlgorithm<S> implements EvolutionAlgorithm<S>
 
 	/*
 	 * (non-Javadoc)
-	 * @see
-	 * org.agal.core.EvolutionAlgorithm#registerListener(ai.search
+	 * @see org.agal.core.EvolutionAlgorithm#registerListener(ai.search
 	 * .algorithms.genetic.core.EvolutionListener)
 	 */
 	@Override
