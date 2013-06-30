@@ -59,10 +59,10 @@ public class FitnessThresholdStopCondition<S> extends StopCondition
 					break;
 				else
 					currentBest = fieldCurrentBestSolution.get( );
-			}
 
-		if ( fieldStateManager.fitness( fieldCurrentBestSolution.get( ) ) > fieldFitnessThreshold )
-			stopEvolution( );
+			if ( fieldStateManager.fitness( fieldCurrentBestSolution.get( ) ) >= fieldFitnessThreshold )
+				stopEvolution( );
+			}
 
 	} // onEvent
 

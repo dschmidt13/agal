@@ -49,7 +49,7 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 	@Override
 	public double fitness( NQueensProblem individual )
 	{
-		return ( double ) individual.getConflicts( ) / fieldMaxConflicts;
+		return 1 - ( ( double ) individual.getConflicts( ) / fieldMaxConflicts );
 
 	} // fitness
 

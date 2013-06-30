@@ -6,111 +6,122 @@
  */
 package org.agal.core.impl;
 
+import java.lang.reflect.Array;
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.agal.core.PopulationModel;
 import org.agal.core.StateManager;
 
 /**
  * StupidSTPopulation is a stupid single-threaded (non-threadsafe) population.
  * @author Dave
- *
  */
 public class StupidSTPopulation<S> implements PopulationModel<S>
 {
+	// Data members.
+	private int fieldSize;
+	private Class<S> fieldElementClass;
+	private S[ ] fieldCurrentGeneration;
+	private S[ ] fieldNextGeneration;
+	private int fieldCurrentElementIndex = 0;
+	private int fieldGenerationCount = 0;
+
 
 	/**
 	 * StupidSTPopulation constructor.
 	 */
-	public StupidSTPopulation( )
+	public StupidSTPopulation( Class<S> clazz, int size )
 	{
-		// TODO Auto-generated constructor stub
-	}
+		fieldSize = size;
+		fieldElementClass = clazz;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.agal.core.PopulationModel#destroy()
-	 */
+	} // StupidSTPopulation
+
+
+	@SuppressWarnings( "unchecked" )
+	private S[ ] createGenerationArray( )
+	{
+		return ( S[ ] ) Array.newInstance( fieldElementClass, fieldSize );
+
+	} // createGenerationArray
+
+
 	@Override
 	public void destroy( )
 	{
-		// TODO Auto-generated method stub
-		
-	}
+		// Nothing to do, really.
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.agal.core.PopulationModel#getGenerationSize()
-	 */
+	} // destroy
+
+
 	@Override
 	public int getGenerationSize( )
 	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
+		return fieldSize;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.agal.core.PopulationModel#initialize(org.agal.core.StateManager, int)
-	 */
+	} // getGenerationSize
+
+
+	public int getNumGenerations( )
+	{
+		return fieldGenerationCount;
+
+	} // getNumGenerations
+
+
 	@Override
 	public void initialize( StateManager<S> stateManager, int populationSize )
 	{
-		// TODO Auto-generated method stub
-		
-	}
+		fieldCurrentGeneration = createGenerationArray( );
+		fieldNextGeneration = createGenerationArray( );
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.agal.core.PopulationModel#nextGeneration()
-	 */
+		for ( int index = 0; index < fieldSize; index++ )
+			fieldCurrentGeneration[ index ] = stateManager.randomize( );
+
+	} // initialize
+
+
 	@Override
 	public void nextGeneration( )
 	{
-		// TODO Auto-generated method stub
-		
-	}
+		fieldCurrentGeneration = fieldNextGeneration;
+		fieldNextGeneration = createGenerationArray( );
+		fieldCurrentElementIndex = 0;
+		fieldGenerationCount++;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.agal.core.PopulationModel#reap()
-	 */
+	} // nextGeneration
+
+
 	@Override
 	public S reap( )
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+		return sample( );
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.agal.core.PopulationModel#sample()
-	 */
+	} // reap
+
+
 	@Override
 	public S sample( )
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+		return fieldCurrentGeneration[ ThreadLocalRandom.current( ).nextInt( fieldSize ) ];
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.agal.core.PopulationModel#size()
-	 */
+	} // sample
+
+
 	@Override
 	public int size( )
 	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
+		return fieldSize;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.agal.core.PopulationModel#sow(java.lang.Object)
-	 */
+	} // size
+
+
 	@Override
 	public void sow( S member )
 	{
-		// TODO Auto-generated method stub
-		
-	}
+		fieldNextGeneration[ fieldCurrentElementIndex++ ] = member;
+		fieldCurrentElementIndex %= fieldSize;
+
+	} // sow
 
 }

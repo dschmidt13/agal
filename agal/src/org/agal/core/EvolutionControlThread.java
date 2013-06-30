@@ -8,7 +8,6 @@ package org.agal.core;
 
 import java.util.concurrent.CountDownLatch;
 
-
 /**
  * EvolutionControlThread is a threaded container which allows for multithreading or
  * backgrounding an evolutionary problem solver (like the type this library is designed to
@@ -74,8 +73,6 @@ public class EvolutionControlThread<S> extends Thread
 	 *            library classes meet these requirements unless they state otherwise. See
 	 *            the note on the thread safety policy in the class documentation for more
 	 *            details.
-	 * @param stopCondition a StopCondition which will observe the evolution and decide
-	 *            when it is ready to be stopped.
 	 * @param numThreads an int indicating how many separate worker threads to spawn (not
 	 *            including the control thread, which does no real work) to process the
 	 *            algorithm. According to <i>Java Concurrency In Practice</i> (Goetz et
@@ -83,16 +80,22 @@ public class EvolutionControlThread<S> extends Thread
 	 *            {@code n+1} threads doing evenly divided work, where {@code n} is the
 	 *            number of cores effectively available on the hardware. (This number may
 	 *            be obtained from the {@code java.lang.Runtime} class.
+	 * @param stopCondition an array of StopCondition which will observe the evolution and
+	 *            decide when it is ready to be stopped. Any one of them may trigger the
+	 *            algorithm to be stopped.
 	 */
-	public EvolutionControlThread( final EvolutionAlgorithm evolver, StopCondition stopCondition,
-			int numThreads )
+	public EvolutionControlThread( final EvolutionAlgorithm evolver, int numThreads,
+			StopCondition... stopConditions )
 	{
-		// Register the stop condition with the evolver (if it hasn't been already).
-		evolver.registerListener( stopCondition );
-		stopCondition.setEvolutionControlThread( this );
+		// Register the stop conditions with the evolver (if it hasn't been already).
+		for ( StopCondition stopCondition : stopConditions )
+			{
+			evolver.registerListener( stopCondition );
+			stopCondition.setEvolutionControlThread( this );
+			}
 
-		// Create a latch for the threads to wait on.
-		fieldStartLatch = new CountDownLatch( numThreads + 1 );
+		// Create a gate to prevent premature evolution until all threads are ready.
+		fieldStartLatch = new CountDownLatch( 1 );
 
 		// Create worker threads.
 		fieldWorkers = new Thread[ numThreads ];
@@ -130,17 +133,8 @@ public class EvolutionControlThread<S> extends Thread
 		for ( Thread workerThread : fieldWorkers )
 			workerThread.start( );
 
-		// This thread is the last one to trigger the latch releasing.
-		try
-			{
-			fieldStartLatch.await( );
-			}
-		catch ( InterruptedException exception1 )
-			{
-			// Shouldn't happen, but restore the interrupt for the next cycle since that's
-			// the one we're expected to react to.
-			Thread.currentThread( ).interrupt( );
-			}
+		// Release the latch and begin evolution.
+		fieldStartLatch.countDown( );
 
 		try
 			{

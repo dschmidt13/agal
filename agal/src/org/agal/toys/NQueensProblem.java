@@ -6,6 +6,7 @@
  */
 package org.agal.toys;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -14,6 +15,9 @@ import org.agal.core.EvolutionControlThread;
 import org.agal.core.StateManager;
 import org.agal.core.impl.EugenicAlgorithm;
 import org.agal.core.impl.FitnessThresholdStopCondition;
+import org.agal.core.impl.SimpleBiasSource;
+import org.agal.core.impl.StupidSTPopulation;
+import org.agal.core.impl.TimedStopCondition;
 
 /**
  * NQueensProblem represents a generic nxn chessboard with n Queens on it. The problem is
@@ -87,21 +91,35 @@ public class NQueensProblem
 	public static void main( String[ ] args )
 			throws InterruptedException
 	{
-		int SIZE = 11;
+		int SIZE = 20;
+		int POPULATION_SIZE = 250;
+		int MAX_TIME_MILLIS = 2 * 1000;
+		double MUTATION_RATE = 0.12;
+		double BIAS_PER_GEN = 0.015;
 
 		try
 			{
 			SIZE = Integer.parseInt( args[ 0 ] );
+			POPULATION_SIZE = Integer.parseInt( args[ 1 ] );
+			MAX_TIME_MILLIS = Integer.parseInt( args[ 2 ] );
+			MUTATION_RATE = Double.parseDouble( args[ 3 ] );
+			BIAS_PER_GEN = Double.parseDouble( args[ 4 ] );
 			}
 		catch ( Exception ignored )
 			{
 			}
 
 		StateManager<NQueensProblem> stateManager = new NQueensStateManager( SIZE );
-		EvolutionAlgorithm algo = new EugenicAlgorithm<NQueensProblem>( null, stateManager, null );
+		StupidSTPopulation<NQueensProblem> pop = new StupidSTPopulation<>( NQueensProblem.class,
+				POPULATION_SIZE );
+		pop.initialize( stateManager, POPULATION_SIZE );
+		SimpleBiasSource bias = new SimpleBiasSource( MUTATION_RATE, BIAS_PER_GEN );
+		EvolutionAlgorithm algo = new EugenicAlgorithm<NQueensProblem>( pop, stateManager, bias );
+		algo.registerListener( bias );
 		FitnessThresholdStopCondition<NQueensProblem> stopCondition = new FitnessThresholdStopCondition<NQueensProblem>(
 				stateManager, 1.0 );
-		EvolutionControlThread controlThread = new EvolutionControlThread<>( algo, stopCondition, 1 );
+		EvolutionControlThread controlThread = new EvolutionControlThread<>( algo, 1,
+				stopCondition, new TimedStopCondition( MAX_TIME_MILLIS ) );
 
 		long millis = System.currentTimeMillis( );
 
@@ -111,7 +129,11 @@ public class NQueensProblem
 		millis = System.currentTimeMillis( ) - millis;
 
 		NQueensProblem solution = stopCondition.getSolution( );
-		System.out.println( "Found one! (" + millis + "ms) Solution: "
+		NumberFormat format = NumberFormat.getPercentInstance( );
+		format.setMaximumFractionDigits( 2 );
+		System.out.println( ( solution.getConflicts( ) > 0 ? "Best solution in " : "Solved! in " )
+				+ millis + "ms/" + pop.getNumGenerations( ) + " generations ("
+				+ format.format( stateManager.fitness( solution ) ) + " fitness): "
 				+ Arrays.toString( solution.getPositions( ) ) );
 
 	} // main

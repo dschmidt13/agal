@@ -73,7 +73,7 @@ public class EugenicAlgorithm<S> implements EvolutionAlgorithm
 		double mutationChance = fieldBiasSource.getBias( BiasSource.BIAS_CODE_MUTATION_PROBABILITY );
 
 		// For every full 1 above 0 in our value, mutate once.
-		for ( ; mutationChance > 0; mutationChance-- )
+		for ( ; mutationChance > 1; mutationChance-- )
 			child = fieldStateManager.mutate( child );
 
 		// TODO - Custom random impl.
@@ -105,21 +105,27 @@ public class EugenicAlgorithm<S> implements EvolutionAlgorithm
 		// terminate us when that happens.
 		while ( !Thread.interrupted( ) )
 			{
-			// Select parents.
-			selectParents( parents );
-
-			// Breed & mutate.
-			breed( parents, children );
-
-			// Release offspring into wild.
-			for ( S child : children )
+			for ( int index = 0; index < fieldPopulation.getGenerationSize( ); index++ )
 				{
-				fieldPopulation.sow( child );
-				notifyListeners( EvolutionListener.EVENT_ID_MEMBER_ADDED_TO_POPULATION, child );
+				// Select parents.
+				selectParents( parents );
+
+				// Breed & mutate.
+				breed( parents, children );
+
+				// Release offspring into wild.
+				for ( S child : children )
+					{
+					fieldPopulation.sow( child );
+					notifyListeners( EvolutionListener.EVENT_ID_MEMBER_ADDED_TO_POPULATION, child );
+					}
+
+				parents.clear( );
+				children.clear( );
 				}
 
-			parents.clear( );
-			children.clear( );
+			fieldPopulation.nextGeneration( );
+			notifyListeners( EvolutionListener.EVENT_ID_NEW_GENERATION, null );
 			}
 
 		notifyListeners( EvolutionListener.EVENT_ID_END_EVOLUTION, null );
@@ -157,7 +163,7 @@ public class EugenicAlgorithm<S> implements EvolutionAlgorithm
 		for ( int index = 0; index < 2; index++ )
 			{
 			// Generate the odds a candidate has to beat to become a parent.
-			double keepChance = fieldBiasSource.getBias( BiasSource.BIAS_CODE_SELECTIVITY );
+			double fitnessThreshold = fieldBiasSource.getBias( BiasSource.BIAS_CODE_SELECTIVITY );
 
 			// Get a candidate from the population.
 			S candidate = fieldPopulation.sample( );
@@ -165,7 +171,8 @@ public class EugenicAlgorithm<S> implements EvolutionAlgorithm
 			// Do we keep it? Do we break early?
 			// TODO - How do I ask the bias generator how quickly to decay this value?
 			int attempts = fieldPopulation.getGenerationSize( );
-			while ( ( fieldStateManager.fitness( candidate ) < keepChance ) && ( attempts-- > 0 ) )
+			while ( ( fieldStateManager.fitness( candidate ) < fitnessThreshold )
+					&& ( attempts-- > 0 ) )
 				candidate = fieldPopulation.sample( );
 
 			parents.add( candidate );
