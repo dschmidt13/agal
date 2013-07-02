@@ -43,7 +43,7 @@ public class TimedStopCondition extends StopCondition
 	 */
 	public TimedStopCondition( long millis )
 	{
-		fieldTimer = new Timer( );
+		fieldTimer = new Timer( true );
 		fieldTimeToWaitMillis = millis;
 
 	} // TimedStopCondition
