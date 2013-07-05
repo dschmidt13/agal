@@ -10,6 +10,7 @@ import java.util.Random;
 
 import org.agal.core.ConcurrentRandomAccessList;
 import org.agal.core.PopulationModel;
+import org.agal.core.impl.LazySineWaveGenerator;
 
 
 /**
