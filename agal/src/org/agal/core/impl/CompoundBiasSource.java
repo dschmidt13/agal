@@ -6,8 +6,8 @@
  */
 package org.agal.core.impl;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.agal.core.BiasSource;
 
@@ -15,41 +15,29 @@ import org.agal.core.BiasSource;
  * CompoundBiasSource is a BiasSource implementation which allows several different
  * simpler BiasSources to be joined together into one handler to be used by the evolution
  * algorithm. It delegates actual {@code getBias} calls to handlers that have been
- * registered to it with
- * @author Dave
+ * registered to it with {@code setBiasSource}. Handlers may be removed via
+ * {@code removeBiasSource}.
+ * <p>
+ * CompoundBiasSource is thread safe.
+ * @author David Schmidt
  */
 public class CompoundBiasSource implements BiasSource
 {
 	// Data members.
-	private Map<Integer, BiasSource> fieldBiasSources;
+	private Map<Integer, BiasSource> fieldBiasSources = new ConcurrentHashMap<>( );
 	private double fieldDefaultBias = 0.0;
 
 
-	/**
-	 * CompoundBiasSource constructor.
-	 */
 	public CompoundBiasSource( )
 	{
-		// LAM - Concurrency?
-		fieldBiasSources = new HashMap<>( );
-
 	} // CompoundBiasSource
 
 
 	public CompoundBiasSource( double defaultBias )
 	{
-		this( );
-
 		fieldDefaultBias = defaultBias;
 
 	} // CompoundBiasSource
-
-
-	public void addBiasSource( BiasSource biasSource, int biasCode )
-	{
-		fieldBiasSources.put( biasCode, biasSource );
-
-	} // addBiasSource
 
 
 	@Override
@@ -57,9 +45,22 @@ public class CompoundBiasSource implements BiasSource
 	{
 		BiasSource handler = fieldBiasSources.get( biasCode );
 
-		// LAM - Allow custom default bias value?
 		return ( handler == null ) ? fieldDefaultBias : handler.getBias( biasCode );
 
 	} // getBias
+
+
+	public void removeBiasSource( int biasCode )
+	{
+		fieldBiasSources.remove( biasCode );
+
+	} // removeBiasSource
+
+
+	public void setBiasSource( BiasSource biasSource, int biasCode )
+	{
+		fieldBiasSources.put( biasCode, biasSource );
+
+	} // setBiasSource
 
 }

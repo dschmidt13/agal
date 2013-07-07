@@ -6,13 +6,15 @@
  */
 package org.agal.core.impl;
 
+
 /**
  * LazySineWaveGenerator approximates a basic sine wave with a given wavelength in
  * milliseconds. This wave has an amplitude of 1 and is centered on the x-axis. To improve
  * performance, a {@code granularity} is specified, and the sine value is not calculated
  * on each call to determine its value, but rather is cached, the cached value expiring
- * every {@code granularity} milliseconds; this is what makes the class "Lazy." However,
- * for the approximated sine curve to be very smooth, higher ratios of
+ * every {@code granularity} milliseconds and <i>only being recalculated on request rather
+ * than actively when the old value expires</i>; this is what makes the class "Lazy."
+ * However, for the approximated sine curve to be very smooth, higher ratios of
  * {@code wavelength:granularity} are necessary. For the smoothest curve, a granularity of
  * {@code 1} may be used in some environments (see note below).
  * <p>
@@ -65,7 +67,7 @@ public class LazySineWaveGenerator
 		// by the current time and passed into a sine function, results in the correct
 		// wavelength. (Use a graph to prove it if you wish.) This reduces the amount of
 		// math required for each new calculation of the wave state.
-		fieldPremultipliedTerm = 2 * Math.PI / fieldGranularityMillis;
+		fieldPremultipliedTerm = 2.0 * Math.PI / fieldWavelengthMillis;
 
 	} // LazySineWaveGenerator
 
