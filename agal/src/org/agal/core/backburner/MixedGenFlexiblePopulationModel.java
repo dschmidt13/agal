@@ -8,18 +8,19 @@ package org.agal.core.backburner;
 
 import java.util.Random;
 
-import org.agal.core.ConcurrentRandomAccessList;
 import org.agal.core.PopulationModel;
+import org.agal.core.StateManager;
 import org.agal.core.impl.LazySineWaveGenerator;
-
 
 /**
  * MixedGenFlexiblePopulationModel is a {@code PopulationModel} implementation which does
  * not have discrete generations, instead mixing parents and children in the population
  * pool. It is also dynamic in that it does not maintain a static population size, but
  * rather grows and shrinks as necessary when members are sown and reaped.
+ * @deprecated Until restored to working order and made properly configurable.
  * @author David Schmidt
  */
+@Deprecated
 public class MixedGenFlexiblePopulationModel<S> implements PopulationModel<S>
 {
 	private class Reaper implements Runnable
@@ -61,6 +62,18 @@ public class MixedGenFlexiblePopulationModel<S> implements PopulationModel<S>
 	} // MixedGenFlexiblePopulationModel
 
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.agal.core.PopulationModel#destroy()
+	 */
+	@Override
+	public void destroy( )
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+
 	/**
 	 * Generates an index for (roughly) where we want to access the population collection.
 	 * @return an {@code int} containing a randomly generated value between {@code 0} and
@@ -78,6 +91,30 @@ public class MixedGenFlexiblePopulationModel<S> implements PopulationModel<S>
 		return index;
 
 	} // generateIndex
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.agal.core.PopulationModel#getGenerationSize()
+	 */
+	@Override
+	public int getGenerationSize( )
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.agal.core.PopulationModel#initialize(org.agal.core.StateManager, int)
+	 */
+	@Override
+	public void initialize( StateManager<S> stateManager, int populationSize )
+	{
+		// TODO Auto-generated method stub
+
+	}
 
 
 	@Override
