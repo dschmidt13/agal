@@ -23,13 +23,15 @@ import org.agal.core.StateManager;
  * achieving a high degree of performance.
  * <p>
  * The name "Eugenic" is one that I feel more accurately describes the class of algorithms
- * deemed by modern (possibly uninformed) computer scientists to be "Genetic" algorithms.
- * The field of Eugenics "advocates the use of practices aimed at improving the genetic
- * composition of a population." (Wikipedia) One of the most intuitive and obvious sources
- * of inspiration for Eugenics was the selective breeding of dogs as a form of artificial
- * evolution. As that technique is conceptually at the core of the Genetic Algorithm, and
- * as the techniques permitted by this framework are not necessarily strictly genetic in
- * modern terms, it makes far more sense to use the term Eugenics.
+ * deemed by modern computer scientists to be "Genetic" algorithms. The field of Eugenics
+ * "advocates the use of practices aimed at improving the genetic composition of a
+ * population." (Wikipedia) One of the most intuitive and obvious sources of inspiration
+ * for Eugenics was the selective breeding of dogs as a form of artificial evolution. As
+ * that technique is conceptually at the core of the Genetic Algorithm, and as the
+ * techniques permitted by this framework are not necessarily strictly genetic in modern
+ * terms, it makes far more sense to use the term Eugenics. Perhaps it will catch on in
+ * spite of its negative connotations, and in time even rebrand the term as having more to
+ * do with obscure computer science and less to do with the holocaust.
  * @author David Schmidt
  */
 public class EugenicAlgorithm<S> implements EvolutionAlgorithm
