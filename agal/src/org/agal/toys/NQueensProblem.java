@@ -38,7 +38,7 @@ public class NQueensProblem
 {
 	// Data members.
 	private final int fieldN;
-	private final int fieldConflicts;
+	private final long fieldConflicts;
 
 	/**
 	 * Contains the row positions of the Queens in their respective (indexed) columns; for
@@ -96,6 +96,8 @@ public class NQueensProblem
 		int MAX_TIME_MILLIS = 2 * 1000;
 		double MUTATION_RATE = 0.12;
 		double BIAS_PER_GEN = 0.015;
+		double GOAL_FITNESS = 1.0;
+		boolean OUTPUT_RESULTS = true;
 
 		try
 			{
@@ -104,6 +106,8 @@ public class NQueensProblem
 			MAX_TIME_MILLIS = Integer.parseInt( args[ 2 ] );
 			MUTATION_RATE = Double.parseDouble( args[ 3 ] );
 			BIAS_PER_GEN = Double.parseDouble( args[ 4 ] );
+			GOAL_FITNESS = Double.parseDouble( args[ 5 ] );
+			OUTPUT_RESULTS = Boolean.parseBoolean( args[ 6 ] );
 			}
 		catch ( Exception ignored )
 			{
@@ -117,7 +121,7 @@ public class NQueensProblem
 		EvolutionAlgorithm algo = new EugenicAlgorithm<NQueensProblem>( pop, stateManager, bias );
 		algo.registerListener( bias );
 		FitnessThresholdStopCondition<NQueensProblem> stopCondition = new FitnessThresholdStopCondition<NQueensProblem>(
-				stateManager, 1.0 );
+				stateManager, GOAL_FITNESS );
 		EvolutionControlThread controlThread = new EvolutionControlThread<>( algo, 1,
 				stopCondition, new TimedStopCondition( MAX_TIME_MILLIS ) );
 
@@ -130,11 +134,12 @@ public class NQueensProblem
 
 		NQueensProblem solution = stopCondition.getSolution( );
 		NumberFormat format = NumberFormat.getPercentInstance( );
-		format.setMaximumFractionDigits( 2 );
+		format.setMaximumFractionDigits( 6 );
+		if ( OUTPUT_RESULTS )
+			System.out.println( "Solution: " + Arrays.toString( solution.getPositions( ) ) );
 		System.out.println( ( solution.getConflicts( ) > 0 ? "Best solution in " : "Solved! in " )
-				+ millis + "ms/" + pop.getNumGenerations( ) + " generations ("
-				+ format.format( stateManager.fitness( solution ) ) + " fitness): "
-				+ Arrays.toString( solution.getPositions( ) ) );
+				+ millis + "ms/" + pop.getNumGenerations( ) + " generations (~"
+				+ format.format( stateManager.fitness( solution ) ) + " fitness)" );
 
 	} // main
 
@@ -143,19 +148,19 @@ public class NQueensProblem
 	 * Counts the number of conflicts between any two Queens on the board in O(n) time.
 	 * This value is cached for efficiency and must be cleared with
 	 * {@link #clearConflicts()} if the board state is changed.
-	 * @return an int indicating the number of conflicts between any two Queens on this
+	 * @return a long indicating the number of conflicts between any two Queens on this
 	 *         board.
 	 */
-	private int countConflicts( )
+	private long countConflicts( )
 	{
 		// Use a local variable to count for thread safety reasons.
-		int conflicts = 0;
+		long conflicts = 0;
 
 		/*
 		 * After analysis, contains the number of Queens in each row of the board. The
 		 * topmost row is index 0. Used for determining conflicts.
 		 */
-		int[ ] rowCounts = new int[ fieldN ];
+		long[ ] rowCounts = new long[ fieldN ];
 
 		/*
 		 * After analysis, contains the number of Queens in diagonals lying along the
@@ -165,7 +170,7 @@ public class NQueensProblem
 		 * the 2n - 1th diagonal is the bottom-right corner (Miami). Used for determining
 		 * conflicts.
 		 */
-		int[ ] lanyDiagonalCounts = new int[ 2 * fieldN - 1 ];
+		long[ ] lanyDiagonalCounts = new long[ 2 * fieldN - 1 ];
 
 		/*
 		 * After analysis, contains the number of Queens in diagonals lying along the
@@ -173,9 +178,10 @@ public class NQueensProblem
 		 * on an nxn chessboard. Counting from index 0 begins with the bottom-left corner
 		 * (Los Angeles); the nth diagonal bisects the board along the "sami" axis; and
 		 * the 2n - 1th diagonal is the top-right corner (New York). Used for determining
-		 * conflicts.
+		 * conflicts. Of course, I'm not going to do the math on it a second time when
+		 * it's symmetrical...
 		 */
-		int[ ] samiDiagonalCounts = new int[ 2 * fieldN - 1 ];
+		long[ ] samiDiagonalCounts = new long[ lanyDiagonalCounts.length ];
 
 		// Loop optimization.
 		int samiBase = fieldN - 1;
@@ -216,10 +222,10 @@ public class NQueensProblem
 
 
 	/**
-	 * @return an {@code int} indicating the number of conflicts on this board. This may
+	 * @return a {@code long} indicating the number of conflicts on this board. This may
 	 *         be used as a fitness function in a search heuristic.
 	 */
-	public int getConflicts( )
+	public long getConflicts( )
 	{
 		return fieldConflicts;
 

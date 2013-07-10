@@ -20,7 +20,7 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 {
 	// Data members.
 	private final int fieldBoardSize;
-	private final int fieldMaxConflicts;
+	private final long fieldMaxConflicts;
 
 
 	/**
@@ -38,7 +38,7 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 		// This loop does that.
 		// LAM - There's probably an equation for this discovered with integral calc. Oh
 		// well, it only really runs once.
-		int maxConflicts = 0;
+		long maxConflicts = 0;
 		for ( int i = 1; i < fieldBoardSize; maxConflicts += i++ )
 			; // Just counting. Not broken.
 		fieldMaxConflicts = maxConflicts;
