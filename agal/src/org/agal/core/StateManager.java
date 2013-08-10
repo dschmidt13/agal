@@ -19,6 +19,12 @@ package org.agal.core;
  */
 public interface StateManager<S>
 {
+	// LAM - Maybe should replace this with separate state generator, state breeder,
+	// and state fitness evaluator interfaces, plus an all-in-one version? In many cases
+	// this could separate probably complex fitness evaluation code from probably simple
+	// (or even templated/pluggable) state generation, mutation, and breeding code.
+
+	// TODO - Add batch state processing (fitness, possibly other things too?)
 
 	/**
 	 * Calculates the fitness of the given individual. Fitness values are compared with

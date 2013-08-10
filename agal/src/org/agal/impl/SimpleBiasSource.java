@@ -4,7 +4,7 @@
  * Created on Jun 29, 2013
  * 
  */
-package org.agal.core.impl;
+package org.agal.impl;
 
 import org.agal.core.BiasSource;
 import org.agal.core.EvolutionListener;
@@ -34,14 +34,14 @@ public class SimpleBiasSource implements BiasSource, EvolutionListener
 
 
 	@Override
-	public double getBias( int biasCode )
+	public double getBias( String biasKey )
 	{
-		switch ( biasCode )
+		switch ( biasKey )
 			{
-			case BiasSource.BIAS_CODE_SELECTIVITY :
+			case BiasSource.BIAS_KEY_SELECTIVITY :
 				return fieldSelectionBias;
 
-			case BiasSource.BIAS_CODE_MUTATION_PROBABILITY :
+			case BiasSource.BIAS_KEY_MUTATION_RATE :
 				return fieldMutationRate;
 			}
 

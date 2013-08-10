@@ -10,14 +10,16 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Random;
 
-import org.agal.core.EvolutionAlgorithm;
+import org.agal.core.EvolutionConfiguration;
 import org.agal.core.EvolutionControlThread;
-import org.agal.core.StateManager;
-import org.agal.core.impl.EugenicAlgorithm;
-import org.agal.core.impl.FitnessThresholdStopCondition;
-import org.agal.core.impl.SimpleBiasSource;
-import org.agal.core.impl.StupidSTPopulation;
-import org.agal.core.impl.TimedStopCondition;
+import org.agal.core.SearchContext;
+import org.agal.impl.EugenicAlgorithm;
+import org.agal.impl.FitnessThresholdStopCondition;
+import org.agal.impl.FixedBiasSource;
+import org.agal.impl.StupidSTPopulation;
+import org.agal.impl.ThreadLocalRandomSource;
+import org.agal.impl.TimedStopCondition;
+import org.agal.impl.TournamentSelector;
 
 /**
  * NQueensProblem represents a generic nxn chessboard with n Queens on it. The problem is
@@ -89,15 +91,14 @@ public class NQueensProblem
 
 
 	public static void main( String[ ] args )
-			throws InterruptedException
+			throws Exception
 	{
 		int SIZE = 20;
 		int POPULATION_SIZE = 250;
 		int MAX_TIME_MILLIS = 2 * 1000;
 		double MUTATION_RATE = 0.12;
-		double BIAS_PER_GEN = 0.015;
 		double GOAL_FITNESS = 1.0;
-		boolean OUTPUT_RESULTS = true;
+		boolean OUTPUT_BOARD = true;
 
 		try
 			{
@@ -105,25 +106,29 @@ public class NQueensProblem
 			POPULATION_SIZE = Integer.parseInt( args[ 1 ] );
 			MAX_TIME_MILLIS = Integer.parseInt( args[ 2 ] );
 			MUTATION_RATE = Double.parseDouble( args[ 3 ] );
-			BIAS_PER_GEN = Double.parseDouble( args[ 4 ] );
 			GOAL_FITNESS = Double.parseDouble( args[ 5 ] );
-			OUTPUT_RESULTS = Boolean.parseBoolean( args[ 6 ] );
+			OUTPUT_BOARD = Boolean.parseBoolean( args[ 6 ] );
 			}
 		catch ( Exception ignored )
 			{
 			}
 
-		StateManager<NQueensProblem> stateManager = new NQueensStateManager( SIZE );
-		StupidSTPopulation<NQueensProblem> pop = new StupidSTPopulation<>( NQueensProblem.class,
-				POPULATION_SIZE );
-		pop.initialize( stateManager, POPULATION_SIZE );
-		SimpleBiasSource bias = new SimpleBiasSource( MUTATION_RATE, BIAS_PER_GEN );
-		EvolutionAlgorithm algo = new EugenicAlgorithm<NQueensProblem>( pop, stateManager, bias );
-		algo.registerListener( bias );
-		FitnessThresholdStopCondition<NQueensProblem> stopCondition = new FitnessThresholdStopCondition<NQueensProblem>(
-				stateManager, GOAL_FITNESS );
-		EvolutionControlThread controlThread = new EvolutionControlThread<>( algo, 1,
-				stopCondition, new TimedStopCondition( MAX_TIME_MILLIS ) );
+		EvolutionConfiguration<NQueensProblem> config = new EvolutionConfiguration<>( );
+		config.setStateManager( new NQueensStateManager( SIZE ) );
+		config.setAlgorithmClass( EugenicAlgorithm.class );
+		config.setSelectorClass( TournamentSelector.class );
+		config.setPopulationClass( StupidSTPopulation.class );
+		config.setPopulationSize( POPULATION_SIZE );
+		config.setDefaultBiasSource( new FixedBiasSource( MUTATION_RATE ) );
+		config.setRandomSourceClass( ThreadLocalRandomSource.class );
+		config.setRandomClass( Random.class );
+
+		SearchContext<NQueensProblem> searchContext = config.initialize( );
+
+		EvolutionControlThread controlThread = new EvolutionControlThread<>( searchContext, 1,
+				new FitnessThresholdStopCondition<NQueensProblem>(
+						searchContext.getStateManager( ), GOAL_FITNESS ), new TimedStopCondition(
+						MAX_TIME_MILLIS ) );
 
 		long millis = System.currentTimeMillis( );
 
@@ -132,14 +137,20 @@ public class NQueensProblem
 
 		millis = System.currentTimeMillis( ) - millis;
 
-		NQueensProblem solution = stopCondition.getSolution( );
+		NQueensProblem solution = searchContext.getBestResult( );
+
 		NumberFormat format = NumberFormat.getPercentInstance( );
 		format.setMaximumFractionDigits( 6 );
-		if ( OUTPUT_RESULTS )
+
+		if ( OUTPUT_BOARD )
 			System.out.println( "Solution: " + Arrays.toString( solution.getPositions( ) ) );
+
 		System.out.println( ( solution.getConflicts( ) > 0 ? "Best solution in " : "Solved! in " )
-				+ millis + "ms/" + pop.getNumGenerations( ) + " generations (~"
-				+ format.format( stateManager.fitness( solution ) ) + " fitness)" );
+				+ millis + "ms/"
+				+ ( ( StupidSTPopulation ) searchContext.getPopulation( ) ).getNumGenerations( )
+				+ " generations (~"
+				+ format.format( searchContext.getStateManager( ).fitness( solution ) )
+				+ " fitness)" );
 
 	} // main
 

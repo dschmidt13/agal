@@ -4,7 +4,7 @@
  * Created on Jul 22, 2012
  * 
  */
-package org.agal.core.backburner;
+package org.agal.xbackburner;
 
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;

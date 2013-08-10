@@ -10,11 +10,11 @@ package org.agal.core;
  * EvolutionAlgorithm TODO (note - must be threadsafe!)
  * @author Dave
  */
-public interface EvolutionAlgorithm<S>
+public interface EvolutionAlgorithm
 {
-	public void evolve( );
+	public abstract void evolve( );
 
 
-	public void registerListener( EvolutionListener listener );
+	public abstract void registerListener( EvolutionListener listener );
 
 }

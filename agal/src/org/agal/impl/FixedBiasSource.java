@@ -4,21 +4,23 @@
  * Created on Jul 4, 2013
  * 
  */
-package org.agal.core.impl;
+package org.agal.impl;
 
 import org.agal.core.BiasSource;
 
 /**
  * FixedBiasSource maintains an unchanging bias value. Calls to {@code getBias} will
- * always return the same bias, regardless of the {@code biasCode} given. This streamlined
+ * always return the same bias, regardless of the {@code biasKey} given. This streamlined
  * behavior is designed to be coupled with {@link CompoundBiasSource} for increased
  * control over when a given fixed bias value is returned.
+ * <p>
+ * FixedBiasSource is thread safe.
  * @author David Schmidt
  */
 public class FixedBiasSource implements BiasSource
 {
 	// Data members.
-	private double fieldBias;
+	private final double fieldBias;
 
 
 	/**
@@ -34,7 +36,7 @@ public class FixedBiasSource implements BiasSource
 
 
 	@Override
-	public double getBias( int biasCode )
+	public double getBias( String biasKey )
 	{
 		return fieldBias;
 

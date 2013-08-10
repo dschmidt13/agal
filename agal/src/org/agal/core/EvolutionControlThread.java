@@ -83,15 +83,22 @@ public class EvolutionControlThread<S> extends Thread
 	 * @param stopCondition an array of StopCondition which will observe the evolution and
 	 *            decide when it is ready to be stopped. Any one of them may trigger the
 	 *            algorithm to be stopped.
+	 * @throws Exception
 	 */
-	public EvolutionControlThread( final EvolutionAlgorithm evolver, int numThreads,
+	public EvolutionControlThread( final SearchContext searchContext, int numThreads,
 			StopCondition... stopConditions )
+			throws Exception
 	{
+		// Instantiate the evolution algorithm via the configuration.
+		final EvolutionAlgorithm evolver = searchContext.getConfiguration( ).createAlgorithm(
+				searchContext );
+
 		// Register the stop conditions with the evolver (if it hasn't been already).
 		for ( StopCondition stopCondition : stopConditions )
 			{
-			evolver.registerListener( stopCondition );
 			stopCondition.setEvolutionControlThread( this );
+			if ( stopCondition instanceof EvolutionListener )
+				evolver.registerListener( ( EvolutionListener ) stopCondition );
 			}
 
 		// Create a gate to prevent premature evolution until all threads are ready.

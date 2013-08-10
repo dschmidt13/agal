@@ -4,7 +4,7 @@
  * Created on Jul 4, 2013
  * 
  */
-package org.agal.core.impl;
+package org.agal.impl;
 
 import org.agal.core.BiasSource;
 
@@ -53,7 +53,7 @@ public class FluctuatingBiasSource implements BiasSource
 
 
 	@Override
-	public double getBias( int biasCode )
+	public double getBias( String biasKey )
 	{
 		return fieldSineWaveGenerator.getSineValue( ) * fieldAmplitudeScalar;
 

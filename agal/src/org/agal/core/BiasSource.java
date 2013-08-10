@@ -20,29 +20,36 @@ package org.agal.core;
  * coupling a {@code BiasSource} with an {@code EvolutionListener} in the same
  * implementation may allow for more intelligent decisions, such as adjusting the mutation
  * rate based on the average fitness of the population, or raising the selectivity as the
- * average fitness increases. Bias values supplied to the evolver may even have a bit of
- * randomness to them, as in the classic Genetic Algorithm's way of occasionally allowing
+ * average fitness increases. Bias values supplied to the evolver might even (at the
+ * discretion of the implementation) have a bit of randomness to them, as in the classic
+ * Genetic Algorithm's way of occasionally allowing low-fitness individuals to reproduce.
  * <p>
  * When choosing or implementing a BiasSource, it is important to know which biases are
  * supported by the EvolutionAlgorithm being used, how exactly these biases are used, and
- * what the range of valid values is. For instance, the bias value for
- * {@code BIAS_CODE_MUTATION_PROBABILITY} must be greater than 0. Any value {@code x}
- * greater than 1 and less than 2 will guarantee at least 1 mutation and have an
- * {@code x - 1} probability of a second mutation; a value of {@code 2.3} would guarantee
- * two mutations and cause a 30% chance at a third. (This is the default definition for
- * this bias, and all EvolutionAlgorithms supplied with this library comply with it;
- * custom EvolutionAlgorithm implementations need not necessarily respect it or any other
- * bias defined herein.)
- * @author Dave
+ * what the range of valid values is. These are documented by the various pluggable
+ * components which leverage the BiasSource framework.
+ * @author David Schmidt
  */
 public interface BiasSource
 {
-	// LAM - Bias constants should probably be moved elsewhere if I decide to keep this
-	// API format.
-	public static final int BIAS_CODE_SELECTIVITY = 0;
-	public static final int BIAS_CODE_MUTATION_PROBABILITY = 1;
+	// TODO - Find a better place for these and/or break these out to their
+	// implementations.
+	public static final String BIAS_KEY_SELECTIVITY = "selectivity";
+	public static final String BIAS_KEY_MUTATION_RATE = "mutationRate";
 
 
-	public double getBias( int biasCode );
+	/**
+	 * Retrieves a bias value. This value may be fixed or dynamically calculated; it may
+	 * depend on the given {@code biasKey}, or the implementation may ignore it.
+	 * @param biasKey a String containing a clue as to which bias is being requested. Some
+	 *            elaborate {@code BiasSources}, such as
+	 *            {@link org.agal.impl.CompoundBiasSource} or custom implementations,
+	 *            may use this heavily. Others such as
+	 *            {@link org.agal.impl.FixedBiasSource} may completely disregard it,
+	 *            as they are designed to supply biases for only a single key per instance
+	 *            anyway.
+	 * @return the {@code bias} value from this source for the given biasKey, as a double.
+	 */
+	public double getBias( String biasKey );
 
 }

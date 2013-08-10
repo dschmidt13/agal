@@ -4,7 +4,7 @@
  * Created on Jun 25, 2013
  * 
  */
-package org.agal.core.impl;
+package org.agal.impl;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -14,10 +14,11 @@ import org.agal.core.StopCondition;
 
 /**
  * TimedStopCondition is a simple StopCondition that will trigger termination of the
- * evolution process once an allotted amount of time has elapsed.
+ * evolution process once an allotted amount of time has elapsed. It listens to the
+ * evolutionary process for signals on when to begin timing.
  * @author Dave
  */
-public class TimedStopCondition extends StopCondition
+public class TimedStopCondition extends StopCondition implements EvolutionListener
 {
 	private class StopTask extends TimerTask
 	{
@@ -25,6 +26,8 @@ public class TimedStopCondition extends StopCondition
 		public void run( )
 		{
 			TimedStopCondition.this.stopEvolution( );
+
+			fieldTimer.cancel( );
 
 		} // run
 

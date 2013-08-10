@@ -4,25 +4,23 @@
  * Created on Jun 27, 2013
  * 
  */
-package org.agal.core.impl;
+package org.agal.impl;
 
-import java.lang.reflect.Array;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.agal.core.PopulationModel;
+import org.agal.core.Population;
 import org.agal.core.StateManager;
 
 /**
  * StupidSTPopulation is a stupid single-threaded (non-threadsafe) population.
  * @author Dave
  */
-public class StupidSTPopulation<S> implements PopulationModel<S>
+public class StupidSTPopulation<S> implements Population<S>
 {
 	// Data members.
 	private int fieldSize;
-	private Class<S> fieldElementClass;
-	private S[ ] fieldCurrentGeneration;
-	private S[ ] fieldNextGeneration;
+	private Object[ ] fieldCurrentGeneration;
+	private Object[ ] fieldNextGeneration;
 	private int fieldCurrentElementIndex = 0;
 	private int fieldGenerationCount = 0;
 
@@ -30,18 +28,14 @@ public class StupidSTPopulation<S> implements PopulationModel<S>
 	/**
 	 * StupidSTPopulation constructor.
 	 */
-	public StupidSTPopulation( Class<S> clazz, int size )
+	public StupidSTPopulation( )
 	{
-		fieldSize = size;
-		fieldElementClass = clazz;
-
 	} // StupidSTPopulation
 
 
-	@SuppressWarnings( "unchecked" )
-	private S[ ] createGenerationArray( )
+	private Object[ ] createGenerationArray( )
 	{
-		return ( S[ ] ) Array.newInstance( fieldElementClass, fieldSize );
+		return new Object[ fieldSize ];
 
 	} // createGenerationArray
 
@@ -72,11 +66,14 @@ public class StupidSTPopulation<S> implements PopulationModel<S>
 	@Override
 	public void initialize( StateManager<S> stateManager, int populationSize )
 	{
-		fieldCurrentGeneration = createGenerationArray( );
+		fieldSize = populationSize;
+
 		fieldNextGeneration = createGenerationArray( );
 
-		for ( int index = 0; index < fieldSize; index++ )
-			fieldCurrentGeneration[ index ] = stateManager.randomize( );
+		for ( int index = 0; index < populationSize; index++ )
+			sow( stateManager.randomize( ) );
+
+		nextGeneration( );
 
 	} // initialize
 
@@ -101,9 +98,10 @@ public class StupidSTPopulation<S> implements PopulationModel<S>
 
 
 	@Override
+	@SuppressWarnings( "unchecked" )
 	public S sample( )
 	{
-		return fieldCurrentGeneration[ ThreadLocalRandom.current( ).nextInt( fieldSize ) ];
+		return ( S ) fieldCurrentGeneration[ ThreadLocalRandom.current( ).nextInt( fieldSize ) ];
 
 	} // sample
 

@@ -4,7 +4,7 @@
  * Created on Jul 18, 2012
  * 
  */
-package org.agal.core.impl;
+package org.agal.impl;
 
 
 /**

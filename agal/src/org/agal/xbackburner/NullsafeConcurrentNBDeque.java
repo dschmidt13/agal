@@ -4,7 +4,7 @@
  * Created on Jul 14, 2012
  * 
  */
-package org.agal.core.backburner;
+package org.agal.xbackburner;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedDeque;

@@ -4,9 +4,7 @@
  * Created on Jun 27, 2013
  * 
  */
-package org.agal.core.impl;
-
-import java.util.concurrent.atomic.AtomicReference;
+package org.agal.impl;
 
 import org.agal.core.EvolutionListener;
 import org.agal.core.StateManager;
@@ -18,12 +16,11 @@ import org.agal.core.StopCondition;
  * adequate solution to be found.)
  * @author Dave
  */
-public class FitnessThresholdStopCondition<S> extends StopCondition
+public class FitnessThresholdStopCondition<S> extends StopCondition implements EvolutionListener
 {
 	// Data members.
 	private StateManager<S> fieldStateManager;
 	private double fieldFitnessThreshold;
-	private AtomicReference<S> fieldCurrentBestSolution;
 
 
 	/**
@@ -33,16 +30,8 @@ public class FitnessThresholdStopCondition<S> extends StopCondition
 	{
 		fieldStateManager = stateManager;
 		fieldFitnessThreshold = fitnessThreshold;
-		fieldCurrentBestSolution = new AtomicReference<>( );
 
 	} // FitnessThresholdStopCondition
-
-
-	public S getSolution( )
-	{
-		return fieldCurrentBestSolution.get( );
-
-	} // getSolution
 
 
 	@Override
@@ -50,17 +39,9 @@ public class FitnessThresholdStopCondition<S> extends StopCondition
 	{
 		if ( eventId == EvolutionListener.EVENT_ID_MEMBER_ADDED_TO_POPULATION )
 			{
-			S newMember = ( S ) eventObject;
-			S currentBest = fieldCurrentBestSolution.get( );
-			while ( currentBest == null
-					|| ( fieldStateManager.fitness( newMember ) > fieldStateManager
-							.fitness( currentBest ) ) )
-				if ( fieldCurrentBestSolution.compareAndSet( currentBest, newMember ) )
-					break;
-				else
-					currentBest = fieldCurrentBestSolution.get( );
-
-			if ( fieldStateManager.fitness( fieldCurrentBestSolution.get( ) ) >= fieldFitnessThreshold )
+			// LAM - Is it safe to assume the things listeners will listen to will always
+			// use this properly? How can we class-verify this with only a type parameter?
+			if ( fieldStateManager.fitness( ( S ) eventObject ) >= fieldFitnessThreshold )
 				stopEvolution( );
 			}
 

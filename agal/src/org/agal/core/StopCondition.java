@@ -7,16 +7,17 @@
 package org.agal.core;
 
 /**
- * StopCondition is a specific type of EvolutionListener used by
- * {@code EvolutionControlThread} that will be apprised of the evolutionary process and is
- * capable of deciding when the evolution should stop. Whether it bases this decision on
- * the state of the evolution (for example, a solution has been found) or its own private
- * knowledge (for example, a number of generations has elapsed) is up to the
- * implementation. To notify the control thread that evolution is complete, the
- * implementation need only call {@code Object.notify()}.
+ * StopCondition is used by {@code EvolutionControlThread} to decide when the evolution
+ * should stop. Whether it bases this decision on the state of the evolution while
+ * listening in (for example, a solution has been found) or its own private knowledge (for
+ * example, a length of time has elapsed) is up to the implementation. To notify the
+ * control thread that evolution is complete, the implementation need only call
+ * {@code Object.notify()}. Concrete subclasses which also implement
+ * {@code EvolutionListener} will automatically be registered with the
+ * {@code EvolutionAlgorithm} by the control thread before evolution begins.
  * @author David Schmidt
  */
-public abstract class StopCondition implements EvolutionListener
+public abstract class StopCondition
 {
 	// Control thread to interrupt.
 	private EvolutionControlThread fieldEvolutionControlThread;
