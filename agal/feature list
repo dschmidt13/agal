@@ -13,11 +13,12 @@ brainstorm of features
 -support for island evolution rolled into forked search api
 -ability to cancel/abort an island/subdomain based on relative preliminary population stats
 -pick gene features you want OR implement your own alternative
+-chromosome pairing
 -built-in fitness cacheing (in gene probably)
 -fitness as objects
 -dynamic fitness based on variable context? (it could be a custom fitness object impl instead of a primitive)
 -lazy fitness object??
--api for fitness calculation of multiple genes at once (for interfacing to distributed systems or parallel/gpu computing)
++api for fitness calculation of multiple genes at once (for interfacing to distributed systems or parallel/gpu computing)
 +api for specifying custom Random impls
 +Random/RandomProvider (?) instance available in search context, possibly on a per-thread basis
 -portable/available search context! search ids?
