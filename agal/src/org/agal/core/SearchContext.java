@@ -33,13 +33,16 @@ public class SearchContext<S>
 	private final Population<S> fieldPopulation;
 	private final BiasSource fieldBiasSource;
 	private final RandomSource fieldRandomSource;
+	private final AbstractFitnessEvaluator<S> fieldFitnessEvaluator;
 	private final AtomicReference<S> fieldBestResult = new AtomicReference<>( null );
 
 
-	protected SearchContext( EvolutionConfiguration configuration, StateManager<S> stateManager,
+	protected SearchContext( EvolutionConfiguration configuration,
+			AbstractFitnessEvaluator<S> fitnessEvaluator, StateManager<S> stateManager,
 			Population<S> population, BiasSource biasSource, RandomSource randomSource )
 	{
 		fieldConfiguration = configuration;
+		fieldFitnessEvaluator = fitnessEvaluator;
 		fieldStateManager = stateManager;
 		fieldPopulation = population;
 		fieldBiasSource = biasSource;
@@ -76,6 +79,13 @@ public class SearchContext<S>
 	} // getContextMap
 
 
+	public AbstractFitnessEvaluator<S> getFitnessEvaluator( )
+	{
+		return fieldFitnessEvaluator;
+
+	} // getFitnessEvaluator
+
+
 	public Population<S> getPopulation( )
 	{
 		return fieldPopulation;
@@ -99,14 +109,13 @@ public class SearchContext<S>
 
 	protected void tryUpdateBestResult( S candidate )
 	{
-		// TODO - This interface puts the work of comparing results on the SearchContext,
+		// FIXME - This interface puts the work of comparing results on the SearchContext,
 		// which is inappropriate. However, exposing the atomic CAS interface and
 		// requiring clients to use it properly would be both inappropriate and dangerous.
 		// A new solution for sifting and tracking results through the SearchContext must
-		// be created... but this will do for trivial cases until then.
+		// be created... but this will do for many cases until then.
 		S current = fieldBestResult.get( );
-		while ( current == null
-				|| fieldStateManager.fitness( candidate ) > fieldStateManager.fitness( current ) )
+		while ( current == null || ( fieldFitnessEvaluator.compare( candidate, current ) > 0 ) )
 			{
 			if ( fieldBestResult.compareAndSet( current, candidate ) )
 				break;

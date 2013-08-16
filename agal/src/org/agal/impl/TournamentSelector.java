@@ -8,9 +8,9 @@ package org.agal.impl;
 
 import java.util.List;
 
+import org.agal.core.AbstractFitnessEvaluator;
 import org.agal.core.Population;
 import org.agal.core.Selector;
-import org.agal.core.StateManager;
 
 /**
  * TournamentSelector
@@ -19,15 +19,15 @@ import org.agal.core.StateManager;
 public class TournamentSelector<S> implements Selector<S>
 {
 	// Data members.
-	private final StateManager<S> fieldStateManager;
+	private final AbstractFitnessEvaluator<S> fieldFitnessEvaluator;
 
 
 	/**
 	 * TournamentSelector constructor.
 	 */
-	public TournamentSelector( StateManager<S> stateManager )
+	public TournamentSelector( AbstractFitnessEvaluator<S> fitnessEvaluator )
 	{
-		fieldStateManager = stateManager;
+		fieldFitnessEvaluator = fitnessEvaluator;
 
 	} // TournamentSelector
 
@@ -44,7 +44,7 @@ public class TournamentSelector<S> implements Selector<S>
 
 			// With arbitrary bias toward the first, compare fitnesses and choose a
 			// winner and add it as a parent.
-			if ( fieldStateManager.fitness( first ) >= fieldStateManager.fitness( second ) )
+			if ( fieldFitnessEvaluator.compare( first, second ) >= 0 )
 				parents.add( first );
 			else
 				parents.add( second );

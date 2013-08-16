@@ -6,6 +6,7 @@
  */
 package org.agal.toys;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Random;
@@ -93,11 +94,11 @@ public class NQueensProblem
 	public static void main( String[ ] args )
 			throws Exception
 	{
-		int SIZE = 20;
-		int POPULATION_SIZE = 250;
+		int SIZE = 50;
+		int POPULATION_SIZE = 100;
 		int MAX_TIME_MILLIS = 2 * 1000;
-		double MUTATION_RATE = 0.12;
-		double GOAL_FITNESS = 1.0;
+		double MUTATION_RATE = 0.18;
+		double GOAL_FITNESS = 1.1;
 		boolean OUTPUT_BOARD = true;
 
 		try
@@ -106,15 +107,21 @@ public class NQueensProblem
 			POPULATION_SIZE = Integer.parseInt( args[ 1 ] );
 			MAX_TIME_MILLIS = Integer.parseInt( args[ 2 ] );
 			MUTATION_RATE = Double.parseDouble( args[ 3 ] );
-			GOAL_FITNESS = Double.parseDouble( args[ 5 ] );
-			OUTPUT_BOARD = Boolean.parseBoolean( args[ 6 ] );
+			GOAL_FITNESS = Double.parseDouble( args[ 4 ] );
+			OUTPUT_BOARD = Boolean.parseBoolean( args[ 5 ] );
 			}
 		catch ( Exception ignored )
 			{
 			}
 
+		NQueensStateManager sm = new NQueensStateManager( SIZE );
+
+		// Convert the "goal fitness" into something that makes sense.
+		int goalConflicts = ( int ) ( ( 1 - GOAL_FITNESS ) * sm.getMaxConflicts( ) );
+
 		EvolutionConfiguration<NQueensProblem> config = new EvolutionConfiguration<>( );
-		config.setStateManager( new NQueensStateManager( SIZE ) );
+		config.setStateManager( sm );
+		config.setFitnessEvaluator( sm );
 		config.setAlgorithmClass( EugenicAlgorithm.class );
 		config.setSelectorClass( TournamentSelector.class );
 		config.setPopulationClass( StupidSTPopulation.class );
@@ -126,9 +133,9 @@ public class NQueensProblem
 		SearchContext<NQueensProblem> searchContext = config.initialize( );
 
 		EvolutionControlThread controlThread = new EvolutionControlThread<>( searchContext, 1,
-				new FitnessThresholdStopCondition<NQueensProblem>(
-						searchContext.getStateManager( ), GOAL_FITNESS ), new TimedStopCondition(
-						MAX_TIME_MILLIS ) );
+				new FitnessThresholdStopCondition<NQueensProblem>( searchContext
+						.getFitnessEvaluator( ), goalConflicts ),
+				new TimedStopCondition( MAX_TIME_MILLIS ) );
 
 		long millis = System.currentTimeMillis( );
 
@@ -144,13 +151,26 @@ public class NQueensProblem
 
 		if ( OUTPUT_BOARD )
 			System.out.println( "Solution: " + Arrays.toString( solution.getPositions( ) ) );
+		int solutionFitness = searchContext.getFitnessEvaluator( ).fitness( solution );
 
-		System.out.println( ( solution.getConflicts( ) > 0 ? "Best solution in " : "Solved! in " )
-				+ millis + "ms/"
-				+ ( ( StupidSTPopulation ) searchContext.getPopulation( ) ).getNumGenerations( )
-				+ " generations (~"
-				+ format.format( searchContext.getStateManager( ).fitness( solution ) )
-				+ " fitness)" );
+		System.out
+				.println( ( solution.getConflicts( ) > 0 ? "Best solution in " : "Solved! in " )
+						+ millis
+						+ "ms/"
+						+ ( ( StupidSTPopulation ) searchContext.getPopulation( ) )
+								.getNumGenerations( )
+						+ " generations ("
+						+ solutionFitness
+						+ " conflicts, ~"
+						+ format.format( 1.0 - ( double ) solutionFitness
+								/ ( double ) sm.getMaxConflicts( ) ) + " fitness)" );
+
+		DecimalFormat df = new DecimalFormat( "0.00" );
+		double gensPerMs = ( double ) ( ( StupidSTPopulation ) searchContext.getPopulation( ) )
+				.getNumGenerations( ) / ( double ) millis;
+		double statesPerMs = gensPerMs * POPULATION_SIZE;
+		System.out.println( "Performance: " + df.format( gensPerMs ) + " gens/ms; "
+				+ df.format( statesPerMs ) + " states/ms" );
 
 	} // main
 

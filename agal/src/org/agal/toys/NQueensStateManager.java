@@ -10,13 +10,15 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.agal.core.AbstractFitnessEvaluator;
 import org.agal.core.StateManager;
 
 /**
  * NQueensStateManager is a StateManager implementation for the NQueensProblem.
  * @author David Schmidt
  */
-public class NQueensStateManager implements StateManager<NQueensProblem>
+public class NQueensStateManager extends AbstractFitnessEvaluator<NQueensProblem> implements
+		StateManager<NQueensProblem>
 {
 	// Data members.
 	private final int fieldBoardSize;
@@ -28,6 +30,8 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 	 */
 	public NQueensStateManager( int boardSize )
 	{
+		super( true );
+
 		fieldBoardSize = boardSize;
 
 		// Calculate and save the maximum number of conflicts for use in fitness
@@ -47,11 +51,18 @@ public class NQueensStateManager implements StateManager<NQueensProblem>
 
 
 	@Override
-	public double fitness( NQueensProblem individual )
+	public Integer fitness( NQueensProblem individual )
 	{
-		return 1 - ( ( double ) individual.getConflicts( ) / fieldMaxConflicts );
+		return Integer.valueOf( ( int ) individual.getConflicts( ) );
 
 	} // fitness
+
+
+	public long getMaxConflicts( )
+	{
+		return fieldMaxConflicts;
+
+	} // getMaxConflicts
 
 
 	@Override

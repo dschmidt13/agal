@@ -41,6 +41,7 @@ public class EvolutionConfiguration<S>
 
 	private List<EvolutionListener> fieldListeners = new ArrayList<>( );
 
+	private AbstractFitnessEvaluator<S> fieldFitnessEvaluator;
 	private StateManager<S> fieldStateManager;
 
 
@@ -84,8 +85,8 @@ public class EvolutionConfiguration<S>
 			{
 			Class<? extends Selector> selectorClass = fieldClassMap.get( Selector.class );
 			Constructor<? extends Selector> constructor = selectorClass
-					.getConstructor( StateManager.class );
-			selector = constructor.newInstance( fieldStateManager );
+					.getConstructor( AbstractFitnessEvaluator.class );
+			selector = constructor.newInstance( fieldFitnessEvaluator );
 			}
 
 		// Create an instance of the requested algorithm.
@@ -148,8 +149,8 @@ public class EvolutionConfiguration<S>
 		// population.)
 
 		// Finally, create the SearchContext, the ultimate wrapper for all this crap.
-		SearchContext<S> searchContext = new SearchContext( this, fieldStateManager, population,
-				biasSource, randomSource );
+		SearchContext<S> searchContext = new SearchContext( this, fieldFitnessEvaluator,
+				fieldStateManager, population, biasSource, randomSource );
 
 		return searchContext;
 
@@ -171,6 +172,14 @@ public class EvolutionConfiguration<S>
 		return this;
 
 	} // setDefaultBiasSource
+
+
+	public EvolutionConfiguration setFitnessEvaluator( AbstractFitnessEvaluator<S> fitnessEvaluator )
+	{
+		fieldFitnessEvaluator = fitnessEvaluator;
+		return this;
+
+	} // setFitnessEvaluator
 
 
 	public EvolutionConfiguration setPopulationClass( Class<? extends Population> populationClass )

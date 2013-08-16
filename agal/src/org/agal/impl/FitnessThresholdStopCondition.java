@@ -6,8 +6,8 @@
  */
 package org.agal.impl;
 
+import org.agal.core.AbstractFitnessEvaluator;
 import org.agal.core.EvolutionListener;
-import org.agal.core.StateManager;
 import org.agal.core.StopCondition;
 
 /**
@@ -19,29 +19,32 @@ import org.agal.core.StopCondition;
 public class FitnessThresholdStopCondition<S> extends StopCondition implements EvolutionListener
 {
 	// Data members.
-	private StateManager<S> fieldStateManager;
-	private double fieldFitnessThreshold;
+	private AbstractFitnessEvaluator<S> fieldFitnessEvaluator;
+	private int fieldFitnessThreshold;
 
 
 	/**
 	 * FitnessThresholdStopCondition constructor.
 	 */
-	public FitnessThresholdStopCondition( StateManager<S> stateManager, double fitnessThreshold )
+	public FitnessThresholdStopCondition( AbstractFitnessEvaluator<S> fitnessEvaluator,
+			int fitnessThreshold )
 	{
-		fieldStateManager = stateManager;
+		fieldFitnessEvaluator = fitnessEvaluator;
 		fieldFitnessThreshold = fitnessThreshold;
 
 	} // FitnessThresholdStopCondition
 
 
 	@Override
+	@SuppressWarnings( "unchecked" )
 	public void onEvent( int eventId, Object eventObject )
 	{
 		if ( eventId == EvolutionListener.EVENT_ID_MEMBER_ADDED_TO_POPULATION )
 			{
 			// LAM - Is it safe to assume the things listeners will listen to will always
 			// use this properly? How can we class-verify this with only a type parameter?
-			if ( fieldStateManager.fitness( ( S ) eventObject ) >= fieldFitnessThreshold )
+			if ( fieldFitnessEvaluator.getFitnessComparator( ).compare(
+					fieldFitnessEvaluator.fitness( ( S ) eventObject ), fieldFitnessThreshold ) >= 0 )
 				stopEvolution( );
 			}
 

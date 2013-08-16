@@ -8,15 +8,15 @@ package org.agal.impl;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.agal.core.AbstractFitnessEvaluator;
 import org.agal.core.Population;
-import org.agal.core.StateManager;
 
 /**
- * PopulationStatisticsWrapper is a simple PopulationWrapper designed to integrate
- * with a population to track (in semi-real time) various statistics of a population.
- * These may be used, for example, for making real-time decisions about evolution bias
- * (such as adjusting mutation rates or selection thresholds), detecting evolutionary
- * stagnation, or even simple monitoring services.
+ * PopulationStatisticsWrapper is a simple PopulationWrapper designed to integrate with a
+ * population to track (in semi-real time) various statistics of a population. These may
+ * be used, for example, for making real-time decisions about evolution bias (such as
+ * adjusting mutation rates or selection thresholds), detecting evolutionary stagnation,
+ * or even simple monitoring services.
  * <p>
  * This implementation uses a copy-on-write mechanism of thread safety to ensure
  * statistics are as accurate as possible while preserving their integrity. However, as it
@@ -55,13 +55,15 @@ public class PopulationStatisticsWrapper<S> extends PopulationWrapper<S>
 
 	// Data members.
 	private AtomicReference<CrudeStatsContainer> fieldStats = new AtomicReference<>( );
-	private StateManager<S> fieldStateManager;
+	private AbstractFitnessEvaluator<S> fieldFitnessEvaluator;
 
 
 	public PopulationStatisticsWrapper( Population<S> wrappedPopulationModel,
-			StateManager<S> stateManager )
+			AbstractFitnessEvaluator<S> fitnessEvaluator )
 	{
 		super( wrappedPopulationModel );
+
+		fieldFitnessEvaluator = fitnessEvaluator;
 
 		// Set an initial stats object to obviate null checks.
 		fieldStats.set( new CrudeStatsContainer( ) );
@@ -98,7 +100,7 @@ public class PopulationStatisticsWrapper<S> extends PopulationWrapper<S>
 	{
 		S element = super.reap( );
 
-		double fitness = fieldStateManager.fitness( element );
+		double fitness = fieldFitnessEvaluator.fitness( element );
 
 		// LAM - null check?
 		while ( true )
@@ -140,7 +142,7 @@ public class PopulationStatisticsWrapper<S> extends PopulationWrapper<S>
 	@Override
 	public void sow( S member )
 	{
-		double fitness = fieldStateManager.fitness( member );
+		double fitness = fieldFitnessEvaluator.fitness( member );
 
 		while ( true )
 			{

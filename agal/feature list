@@ -18,8 +18,8 @@ brainstorm of features
 -dynamic fitness based on variable context? (it could be a custom fitness object impl instead of a primitive)
 -lazy fitness object??
 -api for fitness calculation of multiple genes at once (for interfacing to distributed systems or parallel/gpu computing)
--api for specifying custom Random impls
--Random/RandomProvider (?) instance available in search context, possibly on a per-thread basis
++api for specifying custom Random impls
++Random/RandomProvider (?) instance available in search context, possibly on a per-thread basis
 -portable/available search context! search ids?
 -ability to perform/host a variety of searches in one VM (ie, few/no statics, even config options)
 -as little obscurity as possible! nothing "hidden behind the scenes" in ways that it can't be extended, BUT a lot still taken care of for the user after a little config

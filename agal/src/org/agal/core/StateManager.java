@@ -7,32 +7,17 @@
 package org.agal.core;
 
 /**
- * StateManager is a Singleton that implements the details of interfacing a particular
- * problem's state model with a particular class of algorithms. Most if not all of the
- * methods defined by StateManager are heavily used by Genetic/Eugenic algorithms. As
- * such, implementations should hold in mind the goal of not only constant time
- * complexities, but having relatively small constants as well.
+ * A StateManager is a Singleton that implements the details of interfacing a particular
+ * problem's state model with a particular class of algorithms. Because the methods
+ * defined by StateManager are heavily used by Genetic/Eugenic algorithms, implementations
+ * should hold in mind the goal of not only constant time complexities, but having
+ * relatively small constants as well.
  * <p>
- * As a Singleton, this class is thread safe; concrete extensions of it should be kept so
- * too.
+ * As Singletons, implementations of this interface should be thread-safe.
  * @author David Schmidt
  */
 public interface StateManager<S>
 {
-	// LAM - Maybe should replace this with separate state generator, state breeder,
-	// and state fitness evaluator interfaces, plus an all-in-one version? In many cases
-	// this could separate probably complex fitness evaluation code from probably simple
-	// (or even templated/pluggable) state generation, mutation, and breeding code.
-
-	// TODO - Add batch state processing (fitness, possibly other things too?)
-
-	/**
-	 * Calculates the fitness of the given individual. Fitness values are compared with
-	 * {@code compare}.
-	 * @return a double indicating the fitness of the given individual.
-	 */
-	public double fitness( S individual );
-
 
 	/**
 	 * Returns a slightly modified version of the original state given. The severity of

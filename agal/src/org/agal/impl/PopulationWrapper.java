@@ -43,12 +43,32 @@ public abstract class PopulationWrapper<S> implements Population<S>
 	} // getGenerationSize
 
 
+	public Population<S> getWrappedPopulation( )
+	{
+		return fieldWrappedPopulation;
+
+	} // getWrappedPopulation
+
+
 	@Override
 	public void initialize( StateManager<S> stateManager, int populationSize )
 	{
 		fieldWrappedPopulation.initialize( stateManager, populationSize );
 
 	} // initialize
+
+
+	public boolean isWrappedBy( Class<? extends PopulationWrapper> wrapperClass )
+	{
+		if ( wrapperClass.isAssignableFrom( this.getClass( ) ) )
+			return true;
+
+		if ( fieldWrappedPopulation instanceof PopulationWrapper )
+			return ( ( PopulationWrapper<S> ) fieldWrappedPopulation ).isWrappedBy( wrapperClass );
+		else
+			return false;
+
+	} // isWrappedBy
 
 
 	@Override
