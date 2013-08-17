@@ -6,7 +6,6 @@
  */
 package org.agal.impl;
 
-
 /**
  * LazySineWaveGenerator approximates a basic sine wave with a given wavelength in
  * milliseconds. This wave has an amplitude of 1 and is centered on the x-axis. To improve
@@ -40,8 +39,8 @@ public class LazySineWaveGenerator
 	private final double fieldPremultipliedTerm;
 
 	// LAM - Thread safety - see update().
-	private long fieldLastUpdate = 0;
-	private double fieldSineValue = 0;
+	private volatile long fieldLastUpdate = 0;
+	private volatile double fieldSineValue = 0;
 
 
 	/**

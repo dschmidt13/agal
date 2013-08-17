@@ -8,15 +8,16 @@ package org.agal.xbackburner;
 
 import java.util.Random;
 
+import org.agal.core.AbstractFitnessEvaluator;
 import org.agal.core.Population;
 import org.agal.core.StateManager;
 import org.agal.impl.LazySineWaveGenerator;
 
 /**
- * MixedGenFlexiblePopulationModel is a {@code Population} implementation which does
- * not have discrete generations, instead mixing parents and children in the population
- * pool. It is also dynamic in that it does not maintain a static population size, but
- * rather grows and shrinks as necessary when members are sown and reaped.
+ * MixedGenFlexiblePopulationModel is a {@code Population} implementation which does not
+ * have discrete generations, instead mixing parents and children in the population pool.
+ * It is also dynamic in that it does not maintain a static population size, but rather
+ * grows and shrinks as necessary when members are sown and reaped.
  * @deprecated Until restored to working order and made properly configurable.
  * @author David Schmidt
  */
@@ -95,6 +96,18 @@ public class MixedGenFlexiblePopulationModel<S> implements Population<S>
 
 	/*
 	 * (non-Javadoc)
+	 * @see org.agal.core.Population#getGenerationCount()
+	 */
+	@Override
+	public int getGenerationCount( )
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.agal.core.Population#getGenerationSize()
 	 */
 	@Override
@@ -110,7 +123,8 @@ public class MixedGenFlexiblePopulationModel<S> implements Population<S>
 	 * @see org.agal.core.Population#initialize(org.agal.core.StateManager, int)
 	 */
 	@Override
-	public void initialize( StateManager<S> stateManager, int populationSize )
+	public void initialize( AbstractFitnessEvaluator<S> fitnessEvaluator,
+			StateManager<S> stateManager, int populationSize )
 	{
 		// TODO Auto-generated method stub
 

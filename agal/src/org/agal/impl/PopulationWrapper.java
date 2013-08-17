@@ -6,6 +6,7 @@
  */
 package org.agal.impl;
 
+import org.agal.core.AbstractFitnessEvaluator;
 import org.agal.core.Population;
 import org.agal.core.StateManager;
 
@@ -36,6 +37,14 @@ public abstract class PopulationWrapper<S> implements Population<S>
 
 
 	@Override
+	public int getGenerationCount( )
+	{
+		return fieldWrappedPopulation.getGenerationCount( );
+
+	} // getGenerationCount
+
+
+	@Override
 	public int getGenerationSize( )
 	{
 		return fieldWrappedPopulation.getGenerationSize( );
@@ -51,9 +60,10 @@ public abstract class PopulationWrapper<S> implements Population<S>
 
 
 	@Override
-	public void initialize( StateManager<S> stateManager, int populationSize )
+	public void initialize( AbstractFitnessEvaluator<S> fitnessEvaluator,
+			StateManager<S> stateManager, int populationSize )
 	{
-		fieldWrappedPopulation.initialize( stateManager, populationSize );
+		fieldWrappedPopulation.initialize( fitnessEvaluator, stateManager, populationSize );
 
 	} // initialize
 

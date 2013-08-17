@@ -142,7 +142,7 @@ public class EvolutionConfiguration<S>
 			{
 			Class<? extends Population> populationClass = fieldClassMap.get( Population.class );
 			population = populationClass.newInstance( );
-			population.initialize( fieldStateManager, fieldPopulationSize );
+			population.initialize( fieldFitnessEvaluator, fieldStateManager, fieldPopulationSize );
 			}
 
 		// TODO - Population wrapper support. (Wrapper needs to support access to wrapped

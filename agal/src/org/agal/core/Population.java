@@ -27,6 +27,9 @@ public interface Population<S>
 	public abstract void destroy( );
 
 
+	public abstract int getGenerationCount( );
+
+
 	/**
 	 * Returns a number indicating the number of elements in the current generation. Even
 	 * in growable populations with generational mixing, this will help keep the
@@ -43,6 +46,9 @@ public interface Population<S>
 	 * Prepares a population model for all manner of requests. Only to be used on freshly
 	 * constructed (uninitialized) populations. By returning from this method, the
 	 * Population indicates that it is prepared to service requests.
+	 * @param fitnessEvaluator a FitnessEvaluator which may be used for comparing the
+	 *            relative fitness of members of the population, should the implementation
+	 *            require it.
 	 * @param stateManager a StateManager which may be used to generate the initial
 	 *            population. If further use of the StateManager is required by the
 	 *            Population, it may be saved.
@@ -52,7 +58,8 @@ public interface Population<S>
 	 *            produce population members if they are requested by {@code sample} or
 	 *            {@code reap}.
 	 */
-	public abstract void initialize( StateManager<S> stateManager, int populationSize );
+	public abstract void initialize( AbstractFitnessEvaluator<S> fitnessEvaluator,
+			StateManager<S> stateManager, int populationSize );
 
 
 	/**

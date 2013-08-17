@@ -12,7 +12,7 @@ import org.agal.core.BiasSource;
  * FluctuatingBiasSource varies its bias to fit the curve of a time-driven sine wave to
  * simulate environments that fluctuate independently with respect to time. The wave
  * itself will be shifted up on the y-axis by 1 so it never becomes negative, oscillating
- * between 0 and 2. For this reason, an {@code amplitudeScalar} is specified to adjust the
+ * between 0 and 1. For this reason, an {@code amplitudeScalar} is specified to adjust the
  * final value to the user's desired bias range.
  * <p>
  * A dynamic equation-based bias source is on the To-do list.
@@ -48,6 +48,7 @@ public class FluctuatingBiasSource implements BiasSource
 			double amplitudeScalar )
 	{
 		fieldSineWaveGenerator = new LazySineWaveGenerator( wavelengthMillis, granularityMillis );
+		fieldAmplitudeScalar = amplitudeScalar;
 
 	} // FluctuatingBiasSource
 
@@ -55,7 +56,7 @@ public class FluctuatingBiasSource implements BiasSource
 	@Override
 	public double getBias( String biasKey )
 	{
-		return fieldSineWaveGenerator.getSineValue( ) * fieldAmplitudeScalar;
+		return ( fieldSineWaveGenerator.getSineValue( ) + 1 ) * 0.5 * fieldAmplitudeScalar;
 
 	} // getBias
 

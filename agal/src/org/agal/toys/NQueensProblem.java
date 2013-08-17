@@ -14,10 +14,11 @@ import java.util.Random;
 import org.agal.core.EvolutionConfiguration;
 import org.agal.core.EvolutionControlThread;
 import org.agal.core.SearchContext;
+import org.agal.impl.ArraySharedMixedGenPopulation;
 import org.agal.impl.EugenicAlgorithm;
 import org.agal.impl.FitnessThresholdStopCondition;
 import org.agal.impl.FixedBiasSource;
-import org.agal.impl.StupidSTPopulation;
+import org.agal.impl.FluctuatingBiasSource;
 import org.agal.impl.ThreadLocalRandomSource;
 import org.agal.impl.TimedStopCondition;
 import org.agal.impl.TournamentSelector;
@@ -96,19 +97,23 @@ public class NQueensProblem
 	{
 		int SIZE = 50;
 		int POPULATION_SIZE = 100;
-		int MAX_TIME_MILLIS = 2 * 1000;
-		double MUTATION_RATE = 0.18;
-		double GOAL_FITNESS = 1.1;
-		boolean OUTPUT_BOARD = true;
+		int MAX_TIME_MILLIS = 5 * 100;
+		boolean MUTATION_FLUX = false;
+		double MUTATION_RATE = 0.115;
+		int MUTATION_FLUX_WAVELENGTH = 250;
+		double GOAL_FITNESS = 1;
+		boolean OUTPUT_BOARD = false;
 
 		try
 			{
 			SIZE = Integer.parseInt( args[ 0 ] );
 			POPULATION_SIZE = Integer.parseInt( args[ 1 ] );
 			MAX_TIME_MILLIS = Integer.parseInt( args[ 2 ] );
-			MUTATION_RATE = Double.parseDouble( args[ 3 ] );
-			GOAL_FITNESS = Double.parseDouble( args[ 4 ] );
-			OUTPUT_BOARD = Boolean.parseBoolean( args[ 5 ] );
+			MUTATION_FLUX = Boolean.parseBoolean( args[ 3 ] );
+			MUTATION_RATE = Double.parseDouble( args[ 4 ] );
+			MUTATION_FLUX_WAVELENGTH = Integer.parseInt( args[ 5 ] );
+			GOAL_FITNESS = Double.parseDouble( args[ 6 ] );
+			OUTPUT_BOARD = Boolean.parseBoolean( args[ 7 ] );
 			}
 		catch ( Exception ignored )
 			{
@@ -124,17 +129,20 @@ public class NQueensProblem
 		config.setFitnessEvaluator( sm );
 		config.setAlgorithmClass( EugenicAlgorithm.class );
 		config.setSelectorClass( TournamentSelector.class );
-		config.setPopulationClass( StupidSTPopulation.class );
+		config.setPopulationClass( ArraySharedMixedGenPopulation.class );
 		config.setPopulationSize( POPULATION_SIZE );
-		config.setDefaultBiasSource( new FixedBiasSource( MUTATION_RATE ) );
+		if ( MUTATION_FLUX )
+			config.setDefaultBiasSource( new FluctuatingBiasSource( MUTATION_FLUX_WAVELENGTH, 0,
+					MUTATION_RATE ) );
+		else
+			config.setDefaultBiasSource( new FixedBiasSource( MUTATION_RATE ) );
 		config.setRandomSourceClass( ThreadLocalRandomSource.class );
 		config.setRandomClass( Random.class );
 
 		SearchContext<NQueensProblem> searchContext = config.initialize( );
 
-		EvolutionControlThread controlThread = new EvolutionControlThread<>( searchContext, 1,
-				new FitnessThresholdStopCondition<NQueensProblem>( searchContext
-						.getFitnessEvaluator( ), goalConflicts ),
+		EvolutionControlThread controlThread = new EvolutionControlThread<>( searchContext, 5,
+				new FitnessThresholdStopCondition<NQueensProblem>( sm, goalConflicts ),
 				new TimedStopCondition( MAX_TIME_MILLIS ) );
 
 		long millis = System.currentTimeMillis( );
@@ -157,8 +165,7 @@ public class NQueensProblem
 				.println( ( solution.getConflicts( ) > 0 ? "Best solution in " : "Solved! in " )
 						+ millis
 						+ "ms/"
-						+ ( ( StupidSTPopulation ) searchContext.getPopulation( ) )
-								.getNumGenerations( )
+						+ searchContext.getPopulation( ).getGenerationCount( )
 						+ " generations ("
 						+ solutionFitness
 						+ " conflicts, ~"
@@ -166,8 +173,8 @@ public class NQueensProblem
 								/ ( double ) sm.getMaxConflicts( ) ) + " fitness)" );
 
 		DecimalFormat df = new DecimalFormat( "0.00" );
-		double gensPerMs = ( double ) ( ( StupidSTPopulation ) searchContext.getPopulation( ) )
-				.getNumGenerations( ) / ( double ) millis;
+		double gensPerMs = ( double ) searchContext.getPopulation( ).getGenerationCount( )
+				/ ( double ) millis;
 		double statesPerMs = gensPerMs * POPULATION_SIZE;
 		System.out.println( "Performance: " + df.format( gensPerMs ) + " gens/ms; "
 				+ df.format( statesPerMs ) + " states/ms" );

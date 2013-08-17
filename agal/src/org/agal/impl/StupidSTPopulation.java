@@ -8,6 +8,7 @@ package org.agal.impl;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.agal.core.AbstractFitnessEvaluator;
 import org.agal.core.Population;
 import org.agal.core.StateManager;
 
@@ -49,6 +50,14 @@ public class StupidSTPopulation<S> implements Population<S>
 
 
 	@Override
+	public int getGenerationCount( )
+	{
+		return fieldGenerationCount;
+
+	} // getGenerationCount
+
+
+	@Override
 	public int getGenerationSize( )
 	{
 		return fieldSize;
@@ -56,15 +65,9 @@ public class StupidSTPopulation<S> implements Population<S>
 	} // getGenerationSize
 
 
-	public int getNumGenerations( )
-	{
-		return fieldGenerationCount;
-
-	} // getNumGenerations
-
-
 	@Override
-	public void initialize( StateManager<S> stateManager, int populationSize )
+	public void initialize( AbstractFitnessEvaluator<S> fitnessEvaluator,
+			StateManager<S> stateManager, int populationSize )
 	{
 		fieldSize = populationSize;
 
