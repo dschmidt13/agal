@@ -57,7 +57,7 @@ public class EvolutionConfiguration<S>
 	} // EvolutionConfiguration
 
 
-	public EvolutionConfiguration addBiasSource( String biasKey, BiasSource biasSource )
+	public EvolutionConfiguration<S> addBiasSource( String biasKey, BiasSource biasSource )
 	{
 		fieldBiasSources.put( biasKey, biasSource );
 		return this;
@@ -65,7 +65,7 @@ public class EvolutionConfiguration<S>
 	} // addBiasSource
 
 
-	public EvolutionConfiguration addListener( EvolutionListener listener )
+	public EvolutionConfiguration<S> addListener( EvolutionListener listener )
 	{
 		fieldListeners.add( listener );
 		return this;
@@ -157,7 +157,7 @@ public class EvolutionConfiguration<S>
 	} // initialize
 
 
-	public EvolutionConfiguration setAlgorithmClass(
+	public EvolutionConfiguration<S> setAlgorithmClass(
 			Class<? extends EvolutionAlgorithm> algorithmClass )
 	{
 		fieldClassMap.put( EvolutionAlgorithm.class, algorithmClass );
@@ -166,7 +166,7 @@ public class EvolutionConfiguration<S>
 	} // setAlgorithmClass
 
 
-	public EvolutionConfiguration setDefaultBiasSource( BiasSource defaultBiasSource )
+	public EvolutionConfiguration<S> setDefaultBiasSource( BiasSource defaultBiasSource )
 	{
 		fieldDefaultBiasSource = defaultBiasSource;
 		return this;
@@ -174,7 +174,8 @@ public class EvolutionConfiguration<S>
 	} // setDefaultBiasSource
 
 
-	public EvolutionConfiguration setFitnessEvaluator( AbstractFitnessEvaluator<S> fitnessEvaluator )
+	public EvolutionConfiguration<S> setFitnessEvaluator(
+			AbstractFitnessEvaluator<S> fitnessEvaluator )
 	{
 		fieldFitnessEvaluator = fitnessEvaluator;
 		return this;
@@ -182,7 +183,7 @@ public class EvolutionConfiguration<S>
 	} // setFitnessEvaluator
 
 
-	public EvolutionConfiguration setPopulationClass( Class<? extends Population> populationClass )
+	public EvolutionConfiguration<S> setPopulationClass( Class<? extends Population> populationClass )
 	{
 		fieldClassMap.put( Population.class, populationClass );
 		return this;
@@ -190,7 +191,7 @@ public class EvolutionConfiguration<S>
 	} // setPopulationClass
 
 
-	public EvolutionConfiguration setPopulationSize( int size )
+	public EvolutionConfiguration<S> setPopulationSize( int size )
 	{
 		fieldPopulationSize = size;
 		return this;
@@ -198,7 +199,7 @@ public class EvolutionConfiguration<S>
 	} // setPopulationSize
 
 
-	public EvolutionConfiguration setRandomClass( Class<? extends Random> randomClass )
+	public EvolutionConfiguration<S> setRandomClass( Class<? extends Random> randomClass )
 	{
 		fieldClassMap.put( Random.class, randomClass );
 		return this;
@@ -206,7 +207,7 @@ public class EvolutionConfiguration<S>
 	} // setRandomClass
 
 
-	public EvolutionConfiguration setRandomSourceClass(
+	public EvolutionConfiguration<S> setRandomSourceClass(
 			Class<? extends RandomSource> randomSourceClass )
 	{
 		fieldClassMap.put( RandomSource.class, randomSourceClass );
@@ -215,7 +216,7 @@ public class EvolutionConfiguration<S>
 	} // setRandomSourceClass
 
 
-	public EvolutionConfiguration setSelectorClass( Class<? extends Selector> selectorClass )
+	public EvolutionConfiguration<S> setSelectorClass( Class<? extends Selector> selectorClass )
 	{
 		fieldClassMap.put( Selector.class, selectorClass );
 		return this;
@@ -223,7 +224,7 @@ public class EvolutionConfiguration<S>
 	} // setSelectorClass
 
 
-	public EvolutionConfiguration setStateManager( StateManager<S> stateManager )
+	public EvolutionConfiguration<S> setStateManager( StateManager<S> stateManager )
 	{
 		fieldStateManager = stateManager;
 		return this;
