@@ -42,7 +42,7 @@ public class NQueensProblem
 {
 	// Data members.
 	private final int fieldN;
-	private final long fieldConflicts;
+	private volatile Long fieldConflicts;
 
 	/**
 	 * Contains the row positions of the Queens in their respective (indexed) columns; for
@@ -66,7 +66,7 @@ public class NQueensProblem
 		fieldN = positions.length;
 		fieldPositions = positions;
 
-		fieldConflicts = countConflicts( );
+		// fieldConflicts = countConflicts( );
 
 	} // NQueensProblem
 
@@ -87,7 +87,7 @@ public class NQueensProblem
 		for ( int index = 0; index < fieldN; index++ )
 			fieldPositions[ index ] = random.nextInt( fieldN );
 
-		fieldConflicts = countConflicts( );
+		// fieldConflicts = countConflicts( );
 
 	} // NQueensProblem
 
@@ -101,8 +101,11 @@ public class NQueensProblem
 		boolean MUTATION_FLUX = false;
 		double MUTATION_RATE = 0.115;
 		int MUTATION_FLUX_WAVELENGTH = 250;
+		int MUTATION_FLUX_COMPRESSION_POWER = 1;
+		boolean CLONE = false;
 		double GOAL_FITNESS = 1;
 		boolean OUTPUT_BOARD = false;
+		int THREAD_COUNT = Runtime.getRuntime( ).availableProcessors( ) + 1;
 
 		try
 			{
@@ -112,14 +115,17 @@ public class NQueensProblem
 			MUTATION_FLUX = Boolean.parseBoolean( args[ 3 ] );
 			MUTATION_RATE = Double.parseDouble( args[ 4 ] );
 			MUTATION_FLUX_WAVELENGTH = Integer.parseInt( args[ 5 ] );
-			GOAL_FITNESS = Double.parseDouble( args[ 6 ] );
-			OUTPUT_BOARD = Boolean.parseBoolean( args[ 7 ] );
+			MUTATION_FLUX_COMPRESSION_POWER = Integer.parseInt( args[ 6 ] );
+			CLONE = Boolean.parseBoolean( args[ 7 ] );
+			GOAL_FITNESS = Double.parseDouble( args[ 8 ] );
+			OUTPUT_BOARD = Boolean.parseBoolean( args[ 9 ] );
+			THREAD_COUNT = Integer.parseInt( args[ 10 ] );
 			}
 		catch ( Exception ignored )
 			{
 			}
 
-		NQueensStateManager sm = new NQueensStateManager( SIZE );
+		NQueensStateManager sm = new NQueensStateManager( SIZE, CLONE );
 
 		// Convert the "goal fitness" into something that makes sense.
 		int goalConflicts = ( int ) ( ( 1 - GOAL_FITNESS ) * sm.getMaxConflicts( ) );
@@ -133,7 +139,7 @@ public class NQueensProblem
 		config.setPopulationSize( POPULATION_SIZE );
 		if ( MUTATION_FLUX )
 			config.setDefaultBiasSource( new FluctuatingBiasSource( MUTATION_FLUX_WAVELENGTH, 0,
-					MUTATION_RATE ) );
+					MUTATION_RATE, MUTATION_FLUX_COMPRESSION_POWER ) );
 		else
 			config.setDefaultBiasSource( new FixedBiasSource( MUTATION_RATE ) );
 		config.setRandomSourceClass( ThreadLocalRandomSource.class );
@@ -141,7 +147,8 @@ public class NQueensProblem
 
 		SearchContext<NQueensProblem> searchContext = config.initialize( );
 
-		EvolutionControlThread controlThread = new EvolutionControlThread<>( searchContext, 5,
+		EvolutionControlThread controlThread = new EvolutionControlThread<>( searchContext,
+				THREAD_COUNT,
 				new FitnessThresholdStopCondition<NQueensProblem>( sm, goalConflicts ),
 				new TimedStopCondition( MAX_TIME_MILLIS ) );
 
@@ -265,6 +272,17 @@ public class NQueensProblem
 	 */
 	public long getConflicts( )
 	{
+		if ( fieldConflicts == null )
+			{
+			synchronized ( this )
+				{
+				if ( fieldConflicts == null )
+					{
+					fieldConflicts = countConflicts( );
+					}
+				}
+			}
+
 		return fieldConflicts;
 
 	} // getConflicts

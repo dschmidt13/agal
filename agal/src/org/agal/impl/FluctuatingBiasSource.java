@@ -26,6 +26,7 @@ public class FluctuatingBiasSource implements BiasSource
 	// Data members.
 	private LazySineWaveGenerator fieldSineWaveGenerator;
 	private double fieldAmplitudeScalar;
+	private int fieldSinPower;
 
 
 	/**
@@ -43,12 +44,22 @@ public class FluctuatingBiasSource implements BiasSource
 	 *            be 15-16ms, but this limit is not imposed by this implementation.
 	 * @param amplitudeScalar a double which is multiplied to adjust generated sine wave
 	 *            values to the user's desired bias range before returning them.
+	 * @param sinPower an {@code int} indicating the power to which to raise the sine
+	 *            value. Larger values will generate steeper, sharper bias peaks and
+	 *            longer periods of moderate or low bias. Since squares cause an absolute
+	 *            value effect, even values of {@code sinPower} will appear to cause twice
+	 *            as many peaks and their extended time will be close to 0. Odd values of
+	 *            {@code sinPower} will spend their extended time around the midpoint
+	 *            between the minimum value ({@code 0}) and the maximum value (the
+	 *            {@code amplitudeScalar}). For normal, non-compressed sine wave
+	 *            replication, just use {@code 1} as a default.
 	 */
 	public FluctuatingBiasSource( long wavelengthMillis, long granularityMillis,
-			double amplitudeScalar )
+			double amplitudeScalar, int sinPower )
 	{
 		fieldSineWaveGenerator = new LazySineWaveGenerator( wavelengthMillis, granularityMillis );
 		fieldAmplitudeScalar = amplitudeScalar;
+		fieldSinPower = sinPower;
 
 	} // FluctuatingBiasSource
 
@@ -56,7 +67,15 @@ public class FluctuatingBiasSource implements BiasSource
 	@Override
 	public double getBias( String biasKey )
 	{
-		return ( fieldSineWaveGenerator.getSineValue( ) + 1 ) * 0.5 * fieldAmplitudeScalar;
+		double sinVal = fieldSineWaveGenerator.getSineValue( );
+		sinVal = StrictMath.pow( sinVal, fieldSinPower );
+		if ( fieldSinPower % 2 == 1 )
+			{
+			sinVal += 1;
+			sinVal *= 0.5;
+			}
+
+		return ( sinVal * fieldAmplitudeScalar );
 
 	} // getBias
 

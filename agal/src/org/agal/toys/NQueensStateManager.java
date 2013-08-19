@@ -23,16 +23,18 @@ public class NQueensStateManager extends AbstractFitnessEvaluator<NQueensProblem
 	// Data members.
 	private final int fieldBoardSize;
 	private final long fieldMaxConflicts;
+	private final boolean fieldCloneReproduction;
 
 
 	/**
 	 * NQueensStateManager constructor.
 	 */
-	public NQueensStateManager( int boardSize )
+	public NQueensStateManager( int boardSize, boolean cloneReproduction )
 	{
 		super( true );
 
 		fieldBoardSize = boardSize;
+		fieldCloneReproduction = cloneReproduction;
 
 		// Calculate and save the maximum number of conflicts for use in fitness
 		// calculations. The works as: Imagine all Queens are placed on the same row, so
@@ -98,31 +100,25 @@ public class NQueensStateManager extends AbstractFitnessEvaluator<NQueensProblem
 	@Override
 	public NQueensProblem reproduce( NQueensProblem mother, NQueensProblem father )
 	{
-		// FIXME
-		return singleCrossoverReproduce( mother, father );
+		return ( fieldCloneReproduction ? new NQueensProblem( mother.getPositions( ) )
+				: singleCrossoverReproduce( mother, father ) );
 
 	} // reproduce
 
 
-	private NQueensProblem runlengthMultiCrossoverReproduce( NQueensProblem mother,
-			NQueensProblem father )
+	private NQueensProblem shuffleReproduce( NQueensProblem mother, NQueensProblem father )
 	{
+		Random rand = new Random( );
 		int[ ] momGenes = mother.getPositions( );
 		int[ ] dadGenes = father.getPositions( );
 		int[ ] childGenes = new int[ fieldBoardSize ];
-		int genePosition = 0;
-		Random rand = ThreadLocalRandom.current( );
 
-		// This dodgy little number alternates between parents, taking a random-length
-		// strip of alleles and copying it into the child all the way along the
-		// chromosome.
-		for ( int index = 0; genePosition < fieldBoardSize; index++ )
-			System.arraycopy( ( index % 2 == 0 ) ? momGenes : dadGenes, genePosition, childGenes,
-					genePosition, rand.nextInt( fieldBoardSize - genePosition ) + 1 );
+		for ( int i = 0; i < fieldBoardSize; i++ )
+			childGenes[ i ] = ( rand.nextBoolean( ) ? momGenes[ i ] : dadGenes[ i ] );
 
 		return new NQueensProblem( childGenes );
 
-	} // runlengthMultiCrossoverReproduce
+	} // shuffleReproduce
 
 
 	private NQueensProblem singleCrossoverReproduce( NQueensProblem mother, NQueensProblem father )
