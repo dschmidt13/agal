@@ -9,6 +9,8 @@ package org.agal.toys;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -107,11 +109,11 @@ public class TravellingSalesmanStateManager extends AbstractFitnessEvaluator<Sta
 		// starting with a lineTo.
 		fieldPoints[ 0 ] = points.get( 0 );
 		boundsPath.moveTo( fieldPoints[ 0 ].x, fieldPoints[ 0 ].y );
-		for ( int i = 1; i < fieldNumberOfPoints; i++ )
+		for ( int index = 1; index < fieldNumberOfPoints; index++ )
 			{
-			fieldPoints[ i ] = points.get( i );
-			fieldBaseState[ i ] = i;
-			boundsPath.lineTo( fieldPoints[ i ].x, fieldPoints[ i ].y );
+			fieldPoints[ index ] = points.get( index );
+			fieldBaseState[ index ] = index;
+			boundsPath.lineTo( fieldPoints[ index ].x, fieldPoints[ index ].y );
 			}
 		fieldHeight = boundsPath.getBounds2D( ).getHeight( ) * BOUNDS_MARGIN;
 		fieldWidth = boundsPath.getBounds2D( ).getWidth( ) * BOUNDS_MARGIN;
@@ -275,35 +277,57 @@ public class TravellingSalesmanStateManager extends AbstractFitnessEvaluator<Sta
 		Path2D.Double path = new Path2D.Double( );
 		path.moveTo( fieldPoints[ solution.fieldChromosome[ 0 ] ].x,
 				fieldPoints[ solution.fieldChromosome[ 0 ] ].y );
-		for ( int i = 1; i < fieldNumberOfPoints; i++ )
-			path.lineTo( fieldPoints[ solution.fieldChromosome[ i ] ].x,
-					fieldPoints[ solution.fieldChromosome[ i ] ].y );
+		for ( int index = 1; index < solution.fieldChromosome.length; index++ )
+			path.lineTo( fieldPoints[ solution.fieldChromosome[ index ] ].x,
+					fieldPoints[ solution.fieldChromosome[ index ] ].y );
+		path.lineTo( fieldPoints[ solution.fieldChromosome[ 0 ] ].x,
+				fieldPoints[ solution.fieldChromosome[ 0 ] ].y );
 
 		// Scale image to max bounds if above. If not it'll turn out the original size.
 		double scaleFactor = ( maxDimension > 0 ) ? Math.min(
 				maxDimension / Math.max( fieldWidth, fieldHeight ), 1 ) : 1;
 
 		BufferedImage image = new BufferedImage( ( int ) ( fieldWidth * scaleFactor ),
-				( int ) ( fieldHeight * scaleFactor ) + 1, BufferedImage.TYPE_INT_ARGB );
+				( int ) ( fieldHeight * scaleFactor ), BufferedImage.TYPE_INT_ARGB );
 		Graphics2D graphics = image.createGraphics( );
 
-		graphics.scale( scaleFactor, scaleFactor );
+		// Draw white background.
 		graphics.setBackground( Color.WHITE );
-		graphics.setPaint( Color.BLACK );
-		graphics.setStroke( new BasicStroke( ( float ) ( Math.max( fieldWidth * scaleFactor,
-				fieldHeight * scaleFactor ) / 75.0 ) ) );
-
-		// Draw black path on white background.
 		graphics.clearRect( 0, 0, image.getWidth( ), image.getHeight( ) );
+
+		// Account for margins in everything.
+		graphics.translate( image.getWidth( ) * ( BOUNDS_MARGIN - 1 ) / 2, image.getHeight( )
+				* ( BOUNDS_MARGIN - 1 ) / 2 );
+
+		// Flip y axis.
+		// FIXME - WTF?!? Why is my drawing FUBAR?
+		graphics.transform( AffineTransform.getScaleInstance( 1, -1 ) );
+		graphics.translate( 0, -image.getHeight( ) );
+
+		// Scale/shift for large/offscreen problems.
+		AffineTransform transformSave = graphics.getTransform( );
+		if ( scaleFactor < 1 )
+			{
+			graphics.scale( scaleFactor, scaleFactor );
+			graphics.translate( path.getBounds2D( ).getMinX( ) * -1, path.getBounds2D( ).getMinY( )
+					* -1 );
+			}
+
+		// Draw black path.
+		graphics.setPaint( Color.BLACK );
+		double strokeWidth = Math.max( fieldWidth * scaleFactor, fieldHeight * scaleFactor ) / 75.0;
+		graphics.setStroke( new BasicStroke( ( float ) strokeWidth ) );
 		graphics.draw( path );
 
 		// Draw red points.
+		// FIXME - Also this still doesn't work.
+		graphics.setTransform( transformSave );
 		graphics.setColor( Color.RED );
 		for ( Point2D.Double point : fieldPoints )
 			{
-			Path2D.Double pointPath = new Path2D.Double( );
-			pointPath.moveTo( point.x, point.y );
-			graphics.draw( pointPath );
+			Ellipse2D.Double marker = new Ellipse2D.Double( point.x - strokeWidth, point.y
+					- strokeWidth, strokeWidth * 2, strokeWidth * 2 );
+			graphics.fill( marker );
 			}
 
 		ImageIO.write( image, "PNG", new File( filename ) );
@@ -319,12 +343,13 @@ public class TravellingSalesmanStateManager extends AbstractFitnessEvaluator<Sta
 			int[ ] chromosome = wrapper.fieldChromosome;
 			double totalDistance = 0;
 			Point2D.Double previousPoint = fieldPoints[ chromosome[ 0 ] ];
-			for ( int index = 1; index < fieldNumberOfPoints; index++ )
+			for ( int index = 1; index < chromosome.length; index++ )
 				{
 				Point2D.Double nextPoint = fieldPoints[ chromosome[ index ] ];
 				totalDistance += previousPoint.distance( nextPoint );
 				previousPoint = nextPoint;
 				}
+			totalDistance += previousPoint.distance( fieldPoints[ chromosome[ 0 ] ] );
 
 			// Fixed point fitness adjustment.
 			wrapper.fieldFitness = ( int ) ( totalDistance * 1000 );
@@ -348,15 +373,11 @@ public class TravellingSalesmanStateManager extends AbstractFitnessEvaluator<Sta
 	@Override
 	public StateWrapper randomize( )
 	{
-		int[ ] chromosome = Arrays.copyOf( fieldBaseState, fieldNumberOfPoints );
+		int[ ] chromosome = Arrays.copyOf( fieldBaseState, fieldBaseState.length );
 
-		// Avoid a 0-length bug due to the +1.
-		if ( fieldNumberOfPoints > 0 )
-			{
-			// Shuffle half the list into the whole list.
-			for ( int index = 0; index < fieldNumberOfPoints / 2 + 1; index++ )
-				randomSwap( chromosome );
-			}
+		// Shuffle half the list into the whole list.
+		for ( int index = 0; index < chromosome.length / 2 + 1; index++ )
+			randomSwap( chromosome );
 
 		StateWrapper wrapper = new StateWrapper( );
 		wrapper.fieldChromosome = chromosome;
@@ -371,8 +392,8 @@ public class TravellingSalesmanStateManager extends AbstractFitnessEvaluator<Sta
 		// TODO - Get this from the search context (which we don't have yet).
 		Random random = new Random( );
 
-		int swapIndex1 = random.nextInt( fieldNumberOfPoints );
-		int swapIndex2 = random.nextInt( fieldNumberOfPoints );
+		int swapIndex1 = random.nextInt( state.length );
+		int swapIndex2 = random.nextInt( state.length );
 		int swapValue = state[ swapIndex1 ];
 		state[ swapIndex1 ] = state[ swapIndex2 ];
 		state[ swapIndex2 ] = swapValue;
@@ -391,21 +412,18 @@ public class TravellingSalesmanStateManager extends AbstractFitnessEvaluator<Sta
 		// We'll use every odd value from p2 and every even value from p1, with even
 		// values taking priority for conflicts.
 		ArrayDeque<Integer> queue = new ArrayDeque<>( );
-		for ( int i = 0; i < fieldNumberOfPoints; i++ )
+		for ( int index = 0; index < p1.length; index++ )
 			{
-			if ( p1[ i ] % 2 == 0 )
-				queue.add( p1[ i ] );
-			if ( p2[ i ] % 2 == 1 )
-				queue.add( p2[ i ] );
+			if ( p1[ index ] % 2 == 0 )
+				queue.add( p1[ index ] );
+			if ( p2[ index ] % 2 == 1 )
+				queue.add( p2[ index ] );
 			}
 
-		// Sanity check.
-		assert ( queue.size( ) == fieldNumberOfPoints ) : "Mating algorithm failed!";
-
 		// Convert the queue to an array.
-		int[ ] chromosome = new int[ fieldNumberOfPoints ];
-		for ( int i = 0; i < fieldNumberOfPoints; i++ )
-			chromosome[ i ] = queue.remove( );
+		int[ ] chromosome = new int[ p1.length ];
+		for ( int index = 0; index < p1.length; index++ )
+			chromosome[ index ] = queue.remove( );
 
 		StateWrapper wrapper = new StateWrapper( );
 		wrapper.fieldChromosome = chromosome;
