@@ -25,9 +25,9 @@ public class DefaultSolutionListener<S> implements EvolutionListener
 
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public void onEvent( int eventId, Object eventObject )
+	public void onEvent( String eventId, Object eventObject )
 	{
-		if ( eventId == EvolutionListener.EVENT_ID_MEMBER_ADDED_TO_POPULATION )
+		if ( EvolutionListener.EVENT_ID_MEMBER_ADDED_TO_POPULATION.equals( eventId ) )
 			{
 			fieldSearchContext.tryUpdateBestResult( ( S ) eventObject );
 			}

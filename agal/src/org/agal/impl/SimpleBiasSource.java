@@ -10,9 +10,13 @@ import org.agal.core.BiasSource;
 import org.agal.core.EvolutionListener;
 
 /**
- * SimpleBiasSource
+ * A BiasSource encompassing fixed-rate mutation and variable selection. The selection
+ * rate grows at a specified pace per generation and rolls over when it reaches 1. More
+ * sophisticated selectors than random choice will usually provide better performance.
  * @author Dave
+ * @deprecated due to poor performance.
  */
+@Deprecated
 public class SimpleBiasSource implements BiasSource, EvolutionListener
 {
 	// Data members.
@@ -51,9 +55,9 @@ public class SimpleBiasSource implements BiasSource, EvolutionListener
 
 
 	@Override
-	public void onEvent( int eventId, Object eventObject )
+	public void onEvent( String eventId, Object eventObject )
 	{
-		if ( eventId == EvolutionListener.EVENT_ID_NEW_GENERATION )
+		if ( EvolutionListener.EVENT_ID_NEW_GENERATION.equals( eventId ) )
 			{
 			fieldSelectionBias += fieldSelectionBiasPerGeneration;
 			if ( fieldSelectionBias >= 1 )

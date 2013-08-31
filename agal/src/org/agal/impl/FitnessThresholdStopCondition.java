@@ -37,9 +37,9 @@ public class FitnessThresholdStopCondition<S> extends StopCondition implements E
 
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public void onEvent( int eventId, Object eventObject )
+	public void onEvent( String eventId, Object eventObject )
 	{
-		if ( eventId == EvolutionListener.EVENT_ID_MEMBER_ADDED_TO_POPULATION )
+		if ( EvolutionListener.EVENT_ID_MEMBER_ADDED_TO_POPULATION.equals( eventId ) )
 			{
 			// LAM - Is it safe to assume the things listeners will listen to will always
 			// use this properly? How can we class-verify this with only a type parameter?

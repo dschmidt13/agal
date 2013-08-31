@@ -1,12 +1,18 @@
 brainstorm of features
 ======================
 
--array gene: all objects valid as alleles
--expandable gene: all objects valid as alleles
--gene operations abstracted above the impl structure (array/list/etc)
--pre-implemented optimized primitive array genes (all primitives), pre-implemented bitstring gene type (32/64-bit bit containers? build on primitive int/long array genes?)
--allele selection/randomization based on sets (each locus has a set of option alleles; they may be supplied ahead of time to the impl or calculated on the fly)
--way to specify allele domain for a locus
+~array gene: all objects valid as alleles
+~expandable gene: all objects valid as alleles
+~pre-implemented optimized primitive array genes (all primitives)
++gene operations abstracted above the impl structure (array/list/etc)
++api for fitness calculation of multiple genes at once (for interfacing to distributed systems or parallel/gpu computing)
++api for specifying custom Random impls
++Random/RandomProvider (?) instance available in search context, possibly on a per-thread basis
++flexible selection in algorithm...
++String keys for bias and event codes (switch(str) baby!)
+?-allele selection/randomization based on sets (each locus has a set of option alleles; they may be supplied ahead of time to the impl or calculated on the fly)
+?-way to specify allele domain for a locus
+-pre-implemented bitstring operators (assumes byte[] container?)
 -gene structure: see note on TSP impl below
 -various mutations (not just point mutations: reordering, insertion, deletion, duplication, etc.; some assume gene length is not fixed)
 -api for breaking ("diffracting"? or something else) a locus's search domain to n arbitrary subdomain searches (all such subsearches must know only of their domain and be able to recursively split, perhaps intelligently decide when to split, and yet searches should be able to merge their solutions with ones from other domains, assuming the genes align -- especially at the end of a forked search [use ForkJoinThreadPool for this probably?])
@@ -14,23 +20,21 @@ brainstorm of features
 -ability to cancel/abort an island/subdomain based on relative preliminary population stats
 -pick gene features you want OR implement your own alternative
 -chromosome pairing
--built-in fitness cacheing (in gene probably)
+-built-in fitness cacheing; thread-safe
 -fitness as objects
 -dynamic fitness based on variable context? (it could be a custom fitness object impl instead of a primitive)
 -lazy fitness object??
-+api for fitness calculation of multiple genes at once (for interfacing to distributed systems or parallel/gpu computing)
-+api for specifying custom Random impls
-+Random/RandomProvider (?) instance available in search context, possibly on a per-thread basis
 -portable/available search context! search ids?
 -ability to perform/host a variety of searches in one VM (ie, few/no statics, even config options)
 -as little obscurity as possible! nothing "hidden behind the scenes" in ways that it can't be extended, BUT a lot still taken care of for the user after a little config
 -resemble ehcache in richness of features, ease of use, robustness, scalability, and extensibility
 -population statistics containers...; including allele frequency; ability to use on simple "unintelligent" searches to determine efficacy of stats-based search intelligence
--flexible selection in algorithm...
 -flexible operations in algorithms??? (yes, sorta, but how? op chains or ..?)
--String keys for bias and event codes (switch(str) baby!)
 -clean up result gathering and reporting: built into search context somehow?
 -population impls: single/multithreaded, non/generational
 -monitoring UI
 -add more toys; TSP? [thought for TSP: ordered array of Points; order is important, not allele@loc; make gene api flexible enough to cover this *innately*]
--genetic programming support
+-genetic programming support (???)
+-support for "(gamma+mu)" vs "(gamma,mu)" "evolution strategies"?
+-restructure packages
+-GUI for running, tweaking parameters, and keeping a history to run stats on and determine which techniques/implementations are more valuable to a problem

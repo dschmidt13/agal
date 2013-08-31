@@ -20,18 +20,6 @@ public interface StateManager<S>
 {
 
 	/**
-	 * Returns a slightly modified version of the original state given. The severity of
-	 * the mutation is left to the implementation. May return a copy or modify the
-	 * original instance, so long as modifications are thread-safe. Used by genetic and
-	 * eugenic algorithms. This should attempt to run in constant time.
-	 * @param original a {@code S} containing the original state to mutate.
-	 * @return an {@code S} which may be a copy or the original object, with a slight
-	 *         change made to the state.
-	 */
-	public S mutate( S original );
-
-
-	/**
 	 * Generates a random problem state.
 	 * @return an {@code S} containing a new random state.
 	 */

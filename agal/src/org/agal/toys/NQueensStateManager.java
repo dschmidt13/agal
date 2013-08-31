@@ -68,15 +68,6 @@ public class NQueensStateManager extends AbstractFitnessEvaluator<NQueensProblem
 
 
 	@Override
-	public NQueensProblem mutate( NQueensProblem original )
-	{
-		// FIXME
-		return singlePointMutation( original );
-
-	} // mutate
-
-
-	@Override
 	public NQueensProblem randomize( )
 	{
 		return new NQueensProblem( ThreadLocalRandom.current( ), fieldBoardSize );

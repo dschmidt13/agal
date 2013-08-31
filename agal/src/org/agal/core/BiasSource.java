@@ -34,7 +34,9 @@ public interface BiasSource
 {
 	// TODO - Find a better place for these and/or break these out to their
 	// implementations.
+	@Deprecated
 	public static final String BIAS_KEY_SELECTIVITY = "selectivity";
+	@Deprecated
 	public static final String BIAS_KEY_MUTATION_RATE = "mutationRate";
 
 
@@ -43,11 +45,10 @@ public interface BiasSource
 	 * depend on the given {@code biasKey}, or the implementation may ignore it.
 	 * @param biasKey a String containing a clue as to which bias is being requested. Some
 	 *            elaborate {@code BiasSources}, such as
-	 *            {@link org.agal.impl.CompoundBiasSource} or custom implementations,
-	 *            may use this heavily. Others such as
-	 *            {@link org.agal.impl.FixedBiasSource} may completely disregard it,
-	 *            as they are designed to supply biases for only a single key per instance
-	 *            anyway.
+	 *            {@link org.agal.impl.CompoundBiasSource} or custom implementations, may
+	 *            use this heavily. Others such as {@link org.agal.impl.FixedBiasSource}
+	 *            may completely disregard it, as they are designed to supply biases for
+	 *            only a single key per instance anyway.
 	 * @return the {@code bias} value from this source for the given biasKey, as a double.
 	 */
 	public double getBias( String biasKey );

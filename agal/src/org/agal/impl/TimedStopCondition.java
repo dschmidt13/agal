@@ -60,9 +60,9 @@ public class TimedStopCondition extends StopCondition implements EvolutionListen
 
 
 	@Override
-	public void onEvent( int eventId, Object eventObject )
+	public void onEvent( String eventId, Object eventObject )
 	{
-		if ( eventId == EvolutionListener.EVENT_ID_BEGIN_EVOLUTION )
+		if ( EvolutionListener.EVENT_ID_BEGIN_EVOLUTION.equals( eventId ) )
 			fieldTimer.schedule( new StopTask( ), fieldTimeToWaitMillis );
 
 		if ( eventId == EvolutionListener.EVENT_ID_END_EVOLUTION )

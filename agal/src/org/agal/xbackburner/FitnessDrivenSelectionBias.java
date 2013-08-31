@@ -4,9 +4,10 @@
  * Created on Jul 12, 2013
  * 
  */
-package org.agal.impl;
+package org.agal.xbackburner;
 
 import org.agal.core.BiasSource;
+import org.agal.impl.PopulationStatisticsWrapper;
 
 /**
  * FitnessDrivenSelectionBias TODO

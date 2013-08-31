@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * but by the SearchConfiguration when it is initialized, or by search-splitting features.
  * <p>
  * The {@code SearchContext} is thread safe.
- * @author David Schmidt
+ * @author David Schmidt, Jim Schmidt
  */
 public class SearchContext<S>
 {

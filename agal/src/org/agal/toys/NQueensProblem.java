@@ -14,6 +14,7 @@ import java.util.Random;
 import org.agal.core.EvolutionConfiguration;
 import org.agal.core.EvolutionControlThread;
 import org.agal.core.SearchContext;
+import org.agal.impl.AbstractBiasedMutator;
 import org.agal.impl.ArraySharedMixedGenPopulation;
 import org.agal.impl.EugenicAlgorithm;
 import org.agal.impl.FitnessThresholdStopCondition;
@@ -40,6 +41,29 @@ import org.agal.impl.TournamentSelector;
  */
 public class NQueensProblem
 {
+	private static class NQMutator extends AbstractBiasedMutator<NQueensProblem>
+	{
+
+		public NQMutator( SearchContext<NQueensProblem> searchContext )
+		{
+			super( searchContext );
+
+		} // NQMutator
+
+
+		@Override
+		public void mutate( NQueensProblem state )
+		{
+			Random rand = getSearchContext( ).getRandom( );
+
+			int point = rand.nextInt( state.getPositions( ).length );
+			int newValue = rand.nextInt( state.getPositions( ).length );
+			state.getPositions( )[ point ] = newValue;
+
+		} // mutate
+
+	} // NQMutator
+
 	// Data members.
 	private final int fieldN;
 	private volatile Long fieldConflicts;
@@ -146,6 +170,8 @@ public class NQueensProblem
 		config.setRandomClass( Random.class );
 
 		SearchContext<NQueensProblem> searchContext = config.initialize( );
+
+		config.setMutator( new NQMutator( searchContext ) );
 
 		EvolutionControlThread controlThread = new EvolutionControlThread<>( searchContext,
 				THREAD_COUNT,

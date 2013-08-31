@@ -43,6 +43,7 @@ public class EvolutionConfiguration<S>
 
 	private AbstractFitnessEvaluator<S> fieldFitnessEvaluator;
 	private StateManager<S> fieldStateManager;
+	private Mutator<S> fieldMutator;
 
 
 	/**
@@ -95,8 +96,8 @@ public class EvolutionConfiguration<S>
 			Class<? extends EvolutionAlgorithm> algorithmClass = fieldClassMap
 					.get( EvolutionAlgorithm.class );
 			Constructor<? extends EvolutionAlgorithm> constructor = algorithmClass.getConstructor(
-					SearchContext.class, Selector.class );
-			algorithm = constructor.newInstance( searchContext, selector );
+					SearchContext.class, Selector.class, Mutator.class );
+			algorithm = constructor.newInstance( searchContext, selector, fieldMutator );
 			}
 
 		// Register all the requested listeners.
@@ -181,6 +182,15 @@ public class EvolutionConfiguration<S>
 		return this;
 
 	} // setFitnessEvaluator
+
+
+	public EvolutionConfiguration<S> setMutator( Mutator<S> mutator )
+	{
+		// TODO - Make this class-based somehow?
+		fieldMutator = mutator;
+		return this;
+
+	} // setMutator
 
 
 	public EvolutionConfiguration<S> setPopulationClass( Class<? extends Population> populationClass )

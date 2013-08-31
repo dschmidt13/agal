@@ -9,11 +9,10 @@ package org.agal.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 
-import org.agal.core.BiasSource;
 import org.agal.core.EvolutionAlgorithm;
 import org.agal.core.EvolutionListener;
+import org.agal.core.Mutator;
 import org.agal.core.Population;
 import org.agal.core.SearchContext;
 import org.agal.core.Selector;
@@ -39,32 +38,23 @@ import org.agal.core.StateManager;
 public class EugenicAlgorithm<S> implements EvolutionAlgorithm
 {
 	// Data members.
-	private CopyOnWriteArrayList<EvolutionListener> fieldListeners = new CopyOnWriteArrayList<>( );
-	private StateManager<S> fieldStateManager;
-	private SearchContext<S> fieldSearchContext;
-	private Population<S> fieldPopulation;
-	private Selector<S> fieldSelector;
+	private final CopyOnWriteArrayList<EvolutionListener> fieldListeners = new CopyOnWriteArrayList<>( );
+	private final StateManager<S> fieldStateManager;
+	private final SearchContext<S> fieldSearchContext;
+	private final Population<S> fieldPopulation;
+	private final Selector<S> fieldSelector;
+	private final Mutator<S> fieldMutator;
 
-
-	// FIXME - Extracted from BiasSource documentation. Probably belongs with the mutator
-	// once it gets separated from the algorithm.
-	/*
-	 * For instance, the bias value for {@code BIAS_CODE_MUTATION_PROBABILITY} must be
-	 * greater than 0. Any value {@code x} greater than 1 and less than 2 will guarantee
-	 * at least 1 mutation and have an {@code x - 1} probability of a second mutation; a
-	 * value of {@code 2.3} would guarantee two mutations and cause a 30% chance at a
-	 * third. (This is the default definition for this bias, and all EvolutionAlgorithms
-	 * supplied with this library comply with it; custom EvolutionAlgorithm
-	 * implementations need not necessarily respect it or any other bias defined herein.)
-	 */
 
 	/**
 	 * EugenicAlgorithm constructor.
 	 */
-	public EugenicAlgorithm( SearchContext<S> searchContext, Selector<S> selector )
+	public EugenicAlgorithm( SearchContext<S> searchContext, Selector<S> selector,
+			Mutator<S> mutator )
 	{
 		fieldSearchContext = searchContext;
 		fieldSelector = selector;
+		fieldMutator = mutator;
 
 		fieldStateManager = searchContext.getStateManager( );
 		fieldPopulation = searchContext.getPopulation( );
@@ -87,19 +77,9 @@ public class EugenicAlgorithm<S> implements EvolutionAlgorithm
 		// Reproduce once.
 		S child = fieldStateManager.reproduce( parents.get( 0 ), parents.get( 1 ) );
 
-		// Mutate sometimes, based on a chance supplied by the bias source.
-		double mutationChance = fieldSearchContext.getBias( BiasSource.BIAS_KEY_MUTATION_RATE );
-
-		// For every full 1 above 0 in our value, mutate once.
-		for ( ; mutationChance > 1; mutationChance-- )
-			child = fieldStateManager.mutate( child );
-
-		// TODO - Custom random impl.
-		// With the remainder, treat that as the % chance of mutating. (0.4 = 40%, 1 - 0.4
-		// = 0.6, random double between 0 and 1 should produce a value > 0.6 40% of the
-		// time.)
-		if ( ThreadLocalRandom.current( ).nextDouble( ) > ( 1 - mutationChance ) )
-			child = fieldStateManager.mutate( child );
+		// Mutate sometimes, according to the mutator's wishes.
+		for ( int mutationCount = fieldMutator.mutateCount( child ); mutationCount > 0; mutationCount-- )
+			fieldMutator.mutate( child );
 
 		// Return only the final result.
 		children.add( child );
@@ -151,7 +131,7 @@ public class EugenicAlgorithm<S> implements EvolutionAlgorithm
 	} // run
 
 
-	protected void notifyListeners( int eventId, Object eventObject )
+	protected void notifyListeners( String eventId, Object eventObject )
 	{
 		for ( EvolutionListener listener : fieldListeners )
 			listener.onEvent( eventId, eventObject );
@@ -165,39 +145,5 @@ public class EugenicAlgorithm<S> implements EvolutionAlgorithm
 		fieldListeners.add( listener );
 
 	} // registerListener
-
-	// /**
-	// * Selects parents from the population to be bred. By default, two parents are
-	// chosen
-	// * stochastically: on a linear scale, the higher a state's fitness is, the less
-	// likely
-	// * it is to be rejected. Other implementations may augment this policy, choose more
-	// * than two parents (so long as they can also handle breeding that many), etc. A
-	// * state's fitness is determined by the StateManager.
-	// * @param parents a {@code List<S>} to populate with "parent" states which will be
-	// * used to generate new child states.
-	// */
-	// protected void selectParents( List<S> parents )
-	// {
-	// for ( int index = 0; index < 2; index++ )
-	// {
-	// // Generate the odds a candidate has to beat to become a parent.
-	// double fitnessThreshold = fieldSearchContext.getBias(
-	// BiasSource.BIAS_KEY_SELECTIVITY );
-	//
-	// // Get a candidate from the population.
-	// S candidate = fieldPopulation.sample( );
-	//
-	// // Do we keep it? Do we break early?
-	// // TODO - How do I ask the bias generator how quickly to decay this value?
-	// int attempts = fieldPopulation.getGenerationSize( );
-	// while ( ( fieldStateManager.fitness( candidate ) < fitnessThreshold )
-	// && ( attempts-- > 0 ) )
-	// candidate = fieldPopulation.sample( );
-	//
-	// parents.add( candidate );
-	// }
-	//
-	// } // selectParents
 
 }

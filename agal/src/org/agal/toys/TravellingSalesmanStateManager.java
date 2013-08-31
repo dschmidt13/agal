@@ -361,16 +361,6 @@ public class TravellingSalesmanStateManager extends AbstractFitnessEvaluator<Sta
 
 
 	@Override
-	public StateWrapper mutate( StateWrapper wrapper )
-	{
-		randomSwap( wrapper.fieldChromosome );
-
-		return wrapper;
-
-	} // mutate
-
-
-	@Override
 	public StateWrapper randomize( )
 	{
 		int[ ] chromosome = Arrays.copyOf( fieldBaseState, fieldBaseState.length );

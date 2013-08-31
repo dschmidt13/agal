@@ -23,7 +23,7 @@ public abstract class StopCondition
 	private EvolutionControlThread fieldEvolutionControlThread;
 
 
-	final void setEvolutionControlThread( EvolutionControlThread evolutionControlThread )
+	synchronized final void setEvolutionControlThread( EvolutionControlThread evolutionControlThread )
 	{
 		// Note: we don't care about generic arguments here since the type of State being
 		// evolved is theoretically irrelevant to controlling the evolution.
@@ -38,7 +38,7 @@ public abstract class StopCondition
 	 * process. Does nothing if the StopCondition has not been used with an
 	 * EvolutionControlThread.
 	 */
-	public final void stopEvolution( )
+	public synchronized final void stopEvolution( )
 	{
 		if ( fieldEvolutionControlThread != null )
 			fieldEvolutionControlThread.interrupt( );
