@@ -7,24 +7,24 @@
 package org.agal.xbackburner;
 
 import org.agal.core.BiasSource;
-import org.agal.impl.PopulationStatisticsWrapper;
+import org.agal.stats.CensusWrapper;
 
 /**
  * FitnessDrivenSelectionBias TODO
  * @author Dave
  */
+@Deprecated
 public class FitnessDrivenSelectionBias implements BiasSource
 {
 	// Data members.
-	private PopulationStatisticsWrapper fieldStatsWrapper;
+	private CensusWrapper fieldStatsWrapper;
 	private double fieldSigmasForward;
 
 
 	/**
 	 * FitnessDrivenSelectionBias constructor.
 	 */
-	public FitnessDrivenSelectionBias( PopulationStatisticsWrapper statsWrapper,
-			double sigmasForward )
+	public FitnessDrivenSelectionBias( CensusWrapper statsWrapper, double sigmasForward )
 	{
 		fieldStatsWrapper = statsWrapper;
 		fieldSigmasForward = sigmasForward;
@@ -35,11 +35,12 @@ public class FitnessDrivenSelectionBias implements BiasSource
 	@Override
 	public double getBias( String biasKey )
 	{
-		if ( biasKey.equals( BIAS_KEY_SELECTIVITY ) )
-			return ( fieldSigmasForward * fieldStatsWrapper.getFitnessStdDev( ) + fieldStatsWrapper
-					.getFitnessMean( ) );
-		else
-			return 0;
+		// if ( biasKey.equals( BIAS_KEY_SELECTIVITY ) )
+		// return ( fieldSigmasForward * fieldStatsWrapper.getFitnessStdDev( ) +
+		// fieldStatsWrapper
+		// .getFitnessMean( ) );
+		// else
+		return 0;
 
 	} // getBias
 
