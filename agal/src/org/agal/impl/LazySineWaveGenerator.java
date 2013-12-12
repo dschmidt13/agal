@@ -34,6 +34,7 @@ public class LazySineWaveGenerator
 	// Data members.
 	private final long fieldWavelengthMillis;
 	private final double fieldFrequency;
+	private final long fieldOrigin;
 
 	private final long fieldGranularityMillis;
 	private final double fieldPremultipliedTerm;
@@ -41,6 +42,26 @@ public class LazySineWaveGenerator
 	// LAM - Thread safety - see update().
 	private volatile long fieldLastUpdate = 0;
 	private volatile double fieldSineValue = 0;
+
+
+	/**
+	 * Constructs a LazySineWaveGenerator with the default {@code origin} set to the
+	 * current system time. This is equivalent to calling
+	 * {@code LazySineWaveGenerator( wavelengthMillis, granularityMillis, System.currentTimeMillis( )}
+	 * .
+	 * @param wavelengthMillis a long indicating the wavelength in milliseconds to
+	 *            approximate.
+	 * @param granularityMillis a long indicating how frequently (in ms) the cached sine
+	 *            value should be updated. A value of {@code 1ms} (the lowest possible
+	 *            granularity for this class) will ensure that the approximation is as
+	 *            smooth as possible. Any value less than {@code 1ms} will be treated as
+	 *            {@code 1ms}.
+	 */
+	public LazySineWaveGenerator( long wavelengthMillis, long granularityMillis )
+	{
+		this( wavelengthMillis, granularityMillis, System.currentTimeMillis( ) );
+
+	} // LazySineWaveGenerator
 
 
 	/**
@@ -52,8 +73,14 @@ public class LazySineWaveGenerator
 	 *            granularity for this class) will ensure that the approximation is as
 	 *            smooth as possible. Any value less than {@code 1ms} will be treated as
 	 *            {@code 1ms}.
+	 * @param origin a long indicating the point on the graph where {@code x = 0}, and
+	 *            therefore the beginning of a new wave. Allows clients to control where
+	 *            they start in the wave cycle rather than waiting for part of a
+	 *            wavelength to get there. This value is subtracted from
+	 *            {@code System.currentTimeMillis()} before wavelength adjustments are
+	 *            applied and the sine is calculated.
 	 */
-	public LazySineWaveGenerator( long wavelengthMillis, long granularityMillis )
+	public LazySineWaveGenerator( long wavelengthMillis, long granularityMillis, long origin )
 	{
 		if ( wavelengthMillis <= 0 )
 			throw new IllegalArgumentException( "Wavelength must be greater than 0." );
@@ -61,6 +88,7 @@ public class LazySineWaveGenerator
 		fieldWavelengthMillis = wavelengthMillis;
 		fieldFrequency = 1 / ( double ) fieldWavelengthMillis;
 		fieldGranularityMillis = Math.max( 1, granularityMillis );
+		fieldOrigin = origin;
 
 		// For a wavelength of 3600, eg, 2pi/3600 produces a value which, when multiplied
 		// by the current time and passed into a sine function, results in the correct
@@ -83,7 +111,7 @@ public class LazySineWaveGenerator
 
 	private void update( )
 	{
-		long newTime = System.currentTimeMillis( );
+		long newTime = System.currentTimeMillis( ) - fieldOrigin;
 
 		// Broken invariants don't matter so much here, because anyone contending will
 		// have a similar time and a similar value (assuming wavelength isn't super
